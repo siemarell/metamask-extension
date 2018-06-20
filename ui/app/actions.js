@@ -7,7 +7,7 @@ const {
   calcTokenBalance,
   estimateGas,
   estimateGasPriceFromRecentBlocks,
-} = require('./components/send_/send.utils')
+} = require('./components/send/send.utils')
 const ethUtil = require('ethereumjs-util')
 const { fetchLocale } = require('../i18n-helper')
 const log = require('loglevel')
