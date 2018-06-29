@@ -1002,6 +1002,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // connect features
     this.setupProviderConnection(mux.createStream('provider'), originDomain)
     this.setupPublicConfig(mux.createStream('publicConfig'))
+    this.setupWavesConnection(mux.createStream('waves'))
   }
 
   /**
@@ -1020,6 +1021,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // connect features
     this.setupControllerConnection(mux.createStream('controller'))
     this.setupProviderConnection(mux.createStream('provider'), originDomain)
+    this.setupWavesConnection(mux.createStream('waves')) 
   }
 
   /**
@@ -1059,6 +1061,15 @@ module.exports = class MetamaskController extends EventEmitter {
     })
   }
 
+  /**
+   * A method for serving our waves provider over a given stream.
+   * @param {*} outStream - The stream to provide over.
+   * @param {string} origin - The URI of the requesting resource.
+   */
+  setupWavesConnection (outStream) {
+
+    outStream.on('data',(data)=> console.log(data))
+  }
   /**
    * A method for serving our ethereum provider over a given stream.
    * @param {*} outStream - The stream to provide over.

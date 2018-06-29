@@ -36,6 +36,7 @@ function connectToAccountManager (connectionStream, cb) {
   // connect features
   setupControllerConnection(mx.createStream('controller'), cb)
   setupWeb3Connection(mx.createStream('provider'))
+  setupWavesConnection(mx.createStream('waves'))
 }
 
 /**
@@ -52,7 +53,15 @@ function setupWeb3Connection (connectionStream) {
   global.ethQuery = new EthQuery(providerStream)
   global.eth = new Eth(providerStream)
 }
-
+/**
+ * Establishes a streamed connection to a waves api
+ *
+ * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection
+ */
+function setupWavesConnection (connectionStream) {
+  global.wavesStream = connectionStream
+  connectionStream.on('data',()=>console.log('data'))
+}
 /**
  * Establishes a streamed connection to the background account manager
  *

@@ -22,9 +22,9 @@ var metamaskStream = new LocalMessageDuplexStream({
 // compose the inpage provider
 var inpageProvider = new MetamaskInpageProvider(metamaskStream)
 
-//
-// setup web3
-//
+//create waves stream
+var wavesStream = inpageProvider.mux.createStream('waves')
+global.wavesStream = wavesStream
 
 if (typeof window.web3 !== 'undefined') {
   throw new Error(`MetaMask detected another web3.
