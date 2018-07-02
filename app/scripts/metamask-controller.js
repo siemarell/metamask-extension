@@ -46,7 +46,8 @@ const GWEI_BN = new BN('1000000000')
 const percentile = require('percentile')
 const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
-const {cbToPromise, transformMethods} = require('./controllers/util')
+const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
+const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -1068,10 +1069,6 @@ module.exports = class MetamaskController extends EventEmitter {
    * @param {string} origin - The URI of the requesting resource.
    */
   setupWavesConnection (outStream) {
-
-    const WavesApi = require('@waves/waves-api')
-    const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
-
     const dnode = Dnode({Node: transformMethods(nodeify, Waves.API.Node), Matcher: transformMethods(nodeify, Waves.API.Matcher)})
     pump(
       outStream,

@@ -6,7 +6,7 @@ const log = require('loglevel')
 const LocalMessageDuplexStream = require('post-message-stream')
 const setupDappAutoReload = require('./lib/auto-reload.js')
 const MetamaskInpageProvider = require('./lib/inpage-provider.js')
-const {cbToPromise, transformMethods} = require('./controllers/util')
+const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
 restoreContextAfterImports()
 
 log.setDefaultLevel(process.env.METAMASK_DEBUG ? 'debug' : 'warn')

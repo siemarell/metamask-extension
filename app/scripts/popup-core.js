@@ -6,7 +6,8 @@ const EthQuery = require('eth-query')
 const launchMetamaskUi = require('../../ui')
 const StreamProvider = require('web3-stream-provider')
 const setupMultiplex = require('./lib/stream-utils.js').setupMultiplex
-const {cbToPromise, transformMethods} = require("./controllers/util")
+const {cbToPromise, transformMethods} = require("./controllers/wavesNetwork/util")
+const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
 
 module.exports = initializePopup
 
@@ -60,10 +61,7 @@ function setupWeb3Connection (connectionStream) {
  * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection
  */
 function setupWavesConnection (connectionStream) {
-  //setup waves api lib
-  const WavesApi = require('@waves/waves-api')
-  const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
-//var eventEmitter = new EventEmitter()
+  //var eventEmitter = new EventEmitter()
   const wavesNodeApiDnode = Dnode({
     //sendUpdate: function (state) {
     // eventEmitter.emit('update', state)
