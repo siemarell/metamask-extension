@@ -1,6 +1,7 @@
 /*global Web3*/
 cleanContextForImports()
 require('web3/dist/web3.min.js')
+const Dnode = require('dnode')
 const log = require('loglevel')
 const LocalMessageDuplexStream = require('post-message-stream')
 const setupDappAutoReload = require('./lib/auto-reload.js')
@@ -24,7 +25,21 @@ var inpageProvider = new MetamaskInpageProvider(metamaskStream)
 
 //create waves stream
 var wavesStream = inpageProvider.mux.createStream('waves')
-global.wavesStream = wavesStream
+const WavesApi = require('@waves/waves-api')
+//global.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
+const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
+//var eventEmitter = new EventEmitter()
+var wavesNodeApiDnode = Dnode({
+  //sendUpdate: function (state) {
+   // eventEmitter.emit('update', state)
+  //},
+})
+wavesStream.pipe(wavesNodeApiDnode).pipe(wavesStream)
+wavesNodeApiDnode.once('remote', function (wavesNodeApi) {
+  // setup push events
+  //accountManager.on = eventEmitter.on.bind(eventEmitter)
+  global.Waves = Object.assign(Waves, {API: wavesNodeApi})
+})
 
 if (typeof window.web3 !== 'undefined') {
   throw new Error(`MetaMask detected another web3.

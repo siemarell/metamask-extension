@@ -1067,8 +1067,37 @@ module.exports = class MetamaskController extends EventEmitter {
    * @param {string} origin - The URI of the requesting resource.
    */
   setupWavesConnection (outStream) {
+    function nodeifyAllFunctions(obj, target={}){
+      Object.keys(obj).forEach(key=>{
+        if (typeof obj[key] === 'object'){
+          target[key] = {}
+          nodeifyAllFunctions(obj[key], target[key])
+        }else if (typeof obj[key] === 'function'){
+          target[key] = nodeify(obj[key], obj)
+        }else {
+          target[key] = obj[key]
+        }
+      })
+      return target
+    }
 
-    outStream.on('data',(data)=> console.log(data))
+    const WavesApi = require('@waves/waves-api')
+    const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
+
+    const dnode = Dnode({Node: nodeifyAllFunctions(Waves.API.Node), Matcher: nodeifyAllFunctions(Waves.API.Matcher)})
+    pump(
+      outStream,
+      dnode,
+      outStream,
+      (err) => {
+        if (err) log.error(err)
+      }
+    )
+    dnode.on('remote', (remote) => {
+      // push updates to popup
+      // const sendUpdate = remote.sendUpdate.bind(remote)
+      // this.on('update', sendUpdate)
+    })
   }
   /**
    * A method for serving our ethereum provider over a given stream.

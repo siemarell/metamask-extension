@@ -474,6 +474,8 @@ function generateBundler(opts, performBundle) {
     plugin: 'browserify-derequire',
     debug: opts.buildSourceMaps,
     fullPaths: opts.buildWithFullPaths,
+    //temporary fix waves-api lib not supporting browserify
+    noParse: [__dirname + '/node_modules/@waves/waves-api/dist/waves-api.min.js']
   })
 
   let bundler = browserify(browserifyOpts)
