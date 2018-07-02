@@ -6,6 +6,7 @@ const EthQuery = require('eth-query')
 const launchMetamaskUi = require('../../ui')
 const StreamProvider = require('web3-stream-provider')
 const setupMultiplex = require('./lib/stream-utils.js').setupMultiplex
+const {cbToPromise, transformMethods} = require("./controllers/util")
 
 module.exports = initializePopup
 
@@ -59,8 +60,21 @@ function setupWeb3Connection (connectionStream) {
  * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection
  */
 function setupWavesConnection (connectionStream) {
-  global.wavesStream = connectionStream
-  connectionStream.on('data',()=>console.log('data'))
+  //setup waves api lib
+  const WavesApi = require('@waves/waves-api')
+  const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
+//var eventEmitter = new EventEmitter()
+  const wavesNodeApiDnode = Dnode({
+    //sendUpdate: function (state) {
+    // eventEmitter.emit('update', state)
+    //},
+  })
+  connectionStream.pipe(wavesNodeApiDnode).pipe(connectionStream)
+  wavesNodeApiDnode.once('remote', function (wavesNodeApi) {
+    // setup push events
+    //accountManager.on = eventEmitter.on.bind(eventEmitter)
+    global.Waves = Object.assign(Waves, {API: transformMethods(cbToPromise,wavesNodeApi)})
+  })
 }
 /**
  * Establishes a streamed connection to the background account manager

@@ -6,6 +6,7 @@ const log = require('loglevel')
 const LocalMessageDuplexStream = require('post-message-stream')
 const setupDappAutoReload = require('./lib/auto-reload.js')
 const MetamaskInpageProvider = require('./lib/inpage-provider.js')
+const {cbToPromise, transformMethods} = require('./controllers/util')
 restoreContextAfterImports()
 
 log.setDefaultLevel(process.env.METAMASK_DEBUG ? 'debug' : 'warn')
@@ -23,13 +24,13 @@ var metamaskStream = new LocalMessageDuplexStream({
 // compose the inpage provider
 var inpageProvider = new MetamaskInpageProvider(metamaskStream)
 
-//create waves stream
-var wavesStream = inpageProvider.mux.createStream('waves')
+
+//setup waves api lib
+const wavesStream = inpageProvider.mux.createStream('waves')
 const WavesApi = require('@waves/waves-api')
-//global.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
 const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
 //var eventEmitter = new EventEmitter()
-var wavesNodeApiDnode = Dnode({
+const wavesNodeApiDnode = Dnode({
   //sendUpdate: function (state) {
    // eventEmitter.emit('update', state)
   //},
@@ -38,7 +39,7 @@ wavesStream.pipe(wavesNodeApiDnode).pipe(wavesStream)
 wavesNodeApiDnode.once('remote', function (wavesNodeApi) {
   // setup push events
   //accountManager.on = eventEmitter.on.bind(eventEmitter)
-  global.Waves = Object.assign(Waves, {API: wavesNodeApi})
+  global.Waves = Object.assign(Waves, {API: transformMethods(cbToPromise,wavesNodeApi)})
 })
 
 if (typeof window.web3 !== 'undefined') {
