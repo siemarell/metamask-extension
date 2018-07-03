@@ -56,7 +56,7 @@ async function startApp (metamaskState, accountManager, opts) {
     metamaskState.unapprovedMsgs,
     metamaskState.unapprovedPersonalMsgs,
     metamaskState.unapprovedTypedMessages,
-    metamaskState.unapprovedWavesTransactions,
+    metamaskState.unapprovedWavesTxs,
     metamaskState.network
   )
   const numberOfUnapprivedTx = unapprovedTxsAll.length

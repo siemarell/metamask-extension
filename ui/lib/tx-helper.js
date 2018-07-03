@@ -3,7 +3,7 @@ const log = require('loglevel')
 
 module.exports = function (unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, unapprovedWavesTxs, network) {
   log.debug('tx-helper called with params:')
-  log.debug({ unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, network })
+  log.debug({ unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, unapprovedWavesTxs, network })
 
   const txValues = network ? valuesFor(unapprovedTxs).filter(txMeta => txMeta.metamaskNetworkId === network) : valuesFor(unapprovedTxs)
   log.debug(`tx helper found ${txValues.length} unapproved txs`)

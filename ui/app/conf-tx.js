@@ -73,10 +73,11 @@ ConfirmTxScreen.prototype.getUnapprovedMessagesTotal = function () {
 ConfirmTxScreen.prototype.componentDidMount = function () {
   const {
     unapprovedTxs = {},
+    unapprovedWavesTxs,
     network,
     send,
   } = this.props
-  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, network)
+  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, unapprovedWavesTxs, network)
 
   if (unconfTxList.length === 0 && !send.to && this.getUnapprovedMessagesTotal() === 0) {
     this.props.history.push(DEFAULT_ROUTE)
@@ -90,6 +91,7 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
     selectedAddressTxList,
     send,
     history,
+    unapprovedWavesTxs,
     match: { params: { id: transactionId } = {} },
   } = this.props
 
@@ -98,13 +100,13 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
   if (transactionId) {
     prevTx = R.find(({ id }) => id + '' === transactionId)(selectedAddressTxList)
   } else {
-    const { index: prevIndex, unapprovedTxs: prevUnapprovedTxs } = prevProps
+    const { index: prevIndex, unapprovedTxs: prevUnapprovedTxs, unapprovedWavesTxs: prevUnapprovedWavesTxs } = prevProps
     const prevUnconfTxList = txHelper(prevUnapprovedTxs, {}, {}, {}, network)
     const prevTxData = prevUnconfTxList[prevIndex] || {}
     prevTx = selectedAddressTxList.find(({ id }) => id === prevTxData.id) || {}
   }
 
-  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, network)
+  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, unapprovedWavesTxs, network)
 
   if (prevTx.status === 'dropped') {
     this.props.dispatch(actions.showModal({
@@ -129,7 +131,7 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
     match: { params: { id: transactionId } = {} },
-    unapprovedWavesTransactions
+    unapprovedWavesTxs
   } = this.props
 
   const unconfTxList = txHelper(
@@ -137,7 +139,7 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedMsgs,
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
-    unapprovedWavesTransactions,
+    unapprovedWavesTxs,
     network
   )
   //debugger
