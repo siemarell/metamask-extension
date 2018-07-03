@@ -47,7 +47,8 @@ const percentile = require('percentile')
 const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
-const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
+//const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
+const WavesNetworkController = require('./controllers/wavesNetwork/network')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -77,6 +78,9 @@ module.exports = class MetamaskController extends EventEmitter {
 
     // network store
     this.networkController = new NetworkController(initState.NetworkController)
+
+    // wavesStore
+    this.wavesNetworkController = new WavesNetworkController(initState.WavesNetworkController)
 
     // config manager
     this.configManager = new ConfigManager({
@@ -223,6 +227,7 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
+      WavesNetworkController: this.wavesNetworkController.txStore
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
@@ -1069,7 +1074,10 @@ module.exports = class MetamaskController extends EventEmitter {
    * @param {string} origin - The URI of the requesting resource.
    */
   setupWavesConnection (outStream) {
-    const dnode = Dnode({Node: transformMethods(nodeify, Waves.API.Node), Matcher: transformMethods(nodeify, Waves.API.Matcher)})
+    const dnode = Dnode({
+      Node: transformMethods(nodeify, this.wavesNetworkController.Waves.API.Node),
+      Matcher: transformMethods(nodeify,this.wavesNetworkController.Waves.API.Matcher)
+    });
     pump(
       outStream,
       dnode,
