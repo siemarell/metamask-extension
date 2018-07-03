@@ -48,7 +48,7 @@ const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
 //const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
-const WavesNetworkController = require('./controllers/wavesNetwork/network')
+const WavesNetworkController = require('./controllers/wavesNetwork/wavesNetwork')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {

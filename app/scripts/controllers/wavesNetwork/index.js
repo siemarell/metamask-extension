@@ -1,2 +1,2 @@
-const WavesNetworkController = require('./network')
+const WavesNetworkController = require('./wavesNetwork')
 module.exports = WavesNetworkController

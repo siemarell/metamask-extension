@@ -20,7 +20,8 @@ module.exports = class WavesNetworkController extends EventEmitter {
   constructor(opts = {}) {
     super()
     this.txStore = opts.networkStore || new ObservableStore({
-      wavesTransactions: []
+      //wavesTransactions: [],
+      unapprovedWavesTransactions: []
     })
 
     //Setup Waves patched api
@@ -34,21 +35,21 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   addUnapprovedTx(tx){
     const oldState = this.txStore.getState()
-    const oldTxs = this.txStore.getState().wavesTransactions
+    const oldTxs = this.txStore.getState().unapprovedWavesTransactions
     const newTxs = [...oldTxs, Object.assign({}, tx, {status: 'unapproved'})]
-    const newState = Object.assign({}, oldState, {wavesTransactions: newTxs})
+    const newState = Object.assign({}, oldState, {unapprovedWavesTransactions: newTxs})
     this._saveState(newState)
   }
 
-  updateTxStatus(txId, status){
-    const prevTxs = this.txStore.getState().wavesTransactions
-    const newTxs = prevTxs.map(tx => {
-      if (tx.Id = txId){
-        return Object.assign(tx, {status: status})
-      }else return tx
-    })
-    this._saveState({wavesTransactions: newTxs})
-  }
+  // updateTxStatus(txId, status){
+  //   const prevTxs = this.txStore.getState().wavesTransactions
+  //   const newTxs = prevTxs.map(tx => {
+  //     if (tx.Id = txId){
+  //       return Object.assign(tx, {status: status})
+  //     }else return tx
+  //   })
+  //   this._saveState({wavesTransactions: newTxs})
+  // }
 
   _saveState(newState){
     this.txStore.updateState(newState)

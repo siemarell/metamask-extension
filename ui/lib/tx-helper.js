@@ -1,7 +1,7 @@
 const valuesFor = require('../app/util').valuesFor
 const log = require('loglevel')
 
-module.exports = function (unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, network) {
+module.exports = function (unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, unapprovedWavesTxs, network) {
   log.debug('tx-helper called with params:')
   log.debug({ unapprovedTxs, unapprovedMsgs, personalMsgs, typedMessages, network })
 
@@ -19,6 +19,10 @@ module.exports = function (unapprovedTxs, unapprovedMsgs, personalMsgs, typedMes
   const typedValues = valuesFor(typedMessages)
   log.debug(`tx helper found ${typedValues.length} unsigned typed messages`)
   allValues = allValues.concat(typedValues)
+
+  const wavesValues = unapprovedWavesTxs
+  log.debug(`tx helper found ${wavesValues.length} unsigned waves txs`)
+  allValues = allValues.concat(wavesValues)
 
   allValues = allValues.sort((a, b) => {
     return a.time > b.time

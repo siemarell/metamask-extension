@@ -51,6 +51,7 @@ function mapStateToProps (state) {
     unapprovedTypedMessagesCount,
     send: state.metamask.send,
     selectedAddressTxList: state.metamask.selectedAddressTxList,
+    unapprovedWavesTxs: state.metamask.wavesTransactions
   }
 }
 
@@ -128,6 +129,7 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
     match: { params: { id: transactionId } = {} },
+    unapprovedWavesTransactions
   } = this.props
 
   const unconfTxList = txHelper(
@@ -135,9 +137,10 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedMsgs,
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
+    unapprovedWavesTransactions,
     network
   )
-
+  //debugger
   log.info(`rendering a combined ${unconfTxList.length} unconf msgs & txs`)
 
   return transactionId
