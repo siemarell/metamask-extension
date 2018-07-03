@@ -33,10 +33,10 @@ module.exports = class WavesNetworkController extends EventEmitter {
     //console.log(this.Waves)
   }
 
-  addUnapprovedTx(tx){
+  addUnapprovedTx(txMeta){
     const oldState = this.txStore.getState()
     const oldTxs = this.txStore.getState().unapprovedWavesTxs
-    const newTxs = [...oldTxs, Object.assign({}, tx, {status: 'unapproved'})]
+    const newTxs = [...oldTxs, txMeta]
     const newState = Object.assign({}, oldState, {unapprovedWavesTxs: newTxs})
     this._saveState(newState)
   }
@@ -57,11 +57,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
     //const seed = accounts[sender]
-    const txData = {
-      // Inner metamask id for tx
-      id: createId(),
-      // Inner metamask field sender, library need sender explicitly outside of txData
-      sender: sender,
+    const transferData = {
       // An arbitrary address; mine, in this example
       recipient: recipient,
       // ID of a token, or WAVES
@@ -75,7 +71,15 @@ module.exports = class WavesNetworkController extends EventEmitter {
       attachment: '',
       timestamp: Date.now()
     }
-    this.addUnapprovedTx(txData)
+
+    const txMeta = {
+      id: createId(),
+      status: 'unapproved',
+      type: 'waves_transfer',
+      txParams: transferData,
+      time: transferData.timestamp
+    }
+    this.addUnapprovedTx(txMeta)
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
     console.log(this.txStore.getState())
     return Promise.resolve('Go it')
