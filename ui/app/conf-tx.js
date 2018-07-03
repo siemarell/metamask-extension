@@ -51,7 +51,7 @@ function mapStateToProps (state) {
     unapprovedTypedMessagesCount,
     send: state.metamask.send,
     selectedAddressTxList: state.metamask.selectedAddressTxList,
-    unapprovedWavesTxs: state.metamask.wavesTransactions
+    unapprovedWavesTxs: state.metamask.unapprovedWavesTxs
   }
 }
 
@@ -101,7 +101,7 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
     prevTx = R.find(({ id }) => id + '' === transactionId)(selectedAddressTxList)
   } else {
     const { index: prevIndex, unapprovedTxs: prevUnapprovedTxs, unapprovedWavesTxs: prevUnapprovedWavesTxs } = prevProps
-    const prevUnconfTxList = txHelper(prevUnapprovedTxs, {}, {}, {}, network)
+    const prevUnconfTxList = txHelper(prevUnapprovedTxs, {}, {}, {},prevUnapprovedWavesTxs,  network)
     const prevTxData = prevUnconfTxList[prevIndex] || {}
     prevTx = selectedAddressTxList.find(({ id }) => id === prevTxData.id) || {}
   }
@@ -142,7 +142,6 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedWavesTxs,
     network
   )
-  //debugger
   log.info(`rendering a combined ${unconfTxList.length} unconf msgs & txs`)
 
   return transactionId
