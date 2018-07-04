@@ -48,7 +48,7 @@ const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
 //const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
-const WavesNetworkController = require('./controllers/wavesNetwork/wavesNetwork')
+const {WavesNetworkController} = require('./controllers/wavesNetwork')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -79,7 +79,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // network store
     this.networkController = new NetworkController(initState.NetworkController)
 
-    // wavesStore
+    // waves
     this.wavesNetworkController = new WavesNetworkController(initState.WavesNetworkController)
 
     // config manager
@@ -227,7 +227,8 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesNetworkController.txStore
+      WavesNetworkController: this.wavesNetworkController.txStore,
+      WavesKeyring: this.wavesNetworkController.keyring.store
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
@@ -335,6 +336,7 @@ module.exports = class MetamaskController extends EventEmitter {
     const noticeController = this.noticeController
     const addressBookController = this.addressBookController
     const networkController = this.networkController
+    const wavesController = this.wavesNetworkController
 
     return {
       // etc
@@ -408,6 +410,10 @@ module.exports = class MetamaskController extends EventEmitter {
       // notices
       checkNotices: noticeController.updateNoticesList.bind(noticeController),
       markNoticeRead: noticeController.markNoticeRead.bind(noticeController),
+
+      // waves
+
+      //sendTransaction: wavesController.emit
     }
   }
 

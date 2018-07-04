@@ -1,20 +1,10 @@
 const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
-const ComposedStore = require('obs-store/lib/composed')
+const ComposableObservableStore = require('../../lib/ComposableObservableStore')
 const log = require('loglevel')
 const WavesApi = require('@waves/waves-api')
 const createId = require('../../lib/random-id')
-
-const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange']
-// const accounts = SEEDS
-//   .map(seed => {
-//     return Waves.Seed.fromExistingPhrase(seed)
-//   })
-//   .reduce((prev, next) => {
-//     prev[next.address] = next
-//     return prev
-//   }, {})
-
+const WavesKeyring = require('./wavesKeyring')
 
 module.exports = class WavesNetworkController extends EventEmitter {
   constructor(opts = {}) {
@@ -31,6 +21,16 @@ module.exports = class WavesNetworkController extends EventEmitter {
     Waves.API.Node.assets.transfer = this.transfer.bind(this)
     this.Waves = Waves
     //console.log(this.Waves)
+
+    // Setup Keyring
+    this.keyring = new WavesKeyring()
+
+    // Setup composed store doesnt work !!!
+    // this.store = new ComposableObservableStore(null,{
+    //   txStore: this.txStore,
+    //   keyringStore: this.keyring.store
+    // })
+    // console.log(this.store.getFlatState())
   }
 
   addUnapprovedTx(txMeta){
@@ -58,6 +58,8 @@ module.exports = class WavesNetworkController extends EventEmitter {
   transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
     //const seed = accounts[sender]
     const transferData = {
+      //Metamask field sender
+      sender: sender,
       // An arbitrary address; mine, in this example
       recipient: recipient,
       // ID of a token, or WAVES
@@ -81,8 +83,10 @@ module.exports = class WavesNetworkController extends EventEmitter {
     }
     this.addUnapprovedTx(txMeta)
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
-    console.log(this.txStore.getState())
-    return Promise.resolve('Go it')
+    const result = new Promise((resolve, reject) => {
+      resolve('got it')
+    });
+    return result
   }
 
   signText(address, text) {
@@ -96,6 +100,6 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   getAddresses() {
-    return Promise.resolve(Object.keys(accounts))
+    return Promise.resolve(this.keyring.store.getState())
   }
 }
