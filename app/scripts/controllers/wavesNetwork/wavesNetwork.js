@@ -34,6 +34,12 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   addUnapprovedTx(txMeta){
+    this.once(`${txMeta.id}:signed`, function (txId) {
+      this.removeAllListeners(`${txMeta.id}:rejected`)
+    })
+    this.once(`${txMeta.id}:rejected`, function (txId) {
+      this.removeAllListeners(`${txMeta.id}:signed`)
+    })
     const oldState = this.txStore.getState()
     const oldTxs = this.txStore.getState().unapprovedWavesTxs
     const newTxs = [...oldTxs, txMeta]
@@ -41,15 +47,17 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this._saveState(newState)
   }
 
-  // updateTxStatus(txId, status){
-  //   const prevTxs = this.txStore.getState().wavesTransactions
-  //   const newTxs = prevTxs.map(tx => {
-  //     if (tx.Id = txId){
-  //       return Object.assign(tx, {status: status})
-  //     }else return tx
-  //   })
-  //   this._saveState({wavesTransactions: newTxs})
-  // }
+  _setTxStatus(txId, status){
+    const txMeta = this.getTx(txId)
+    txMeta.status = status
+    const txList = this.txStore.getState().wavesTransactions
+    const index = txList.findIndex(txMeta=> txMeta.id === txId)
+    txList[index] = txMeta
+    this.emit(`${txMeta.id}:${status}`, txId)
+    this.emit(`tx:status-update`, txId, status)
+    this.emit('update:badge')
+    this._saveState({wavesTransactions: txList})
+  }
 
   _saveState(newState){
     this.txStore.updateState(newState)
@@ -84,7 +92,12 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this.addUnapprovedTx(txMeta)
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
     const result = new Promise((resolve, reject) => {
-      resolve('got it')
+      this.once(`${txMeta.id}:approved`, txId => {
+        resolve(`approved: ${txId}`)
+      })
+      this.once(`${txMeta.id}:rejected`, txId => {
+        reject(`approved: ${txId}`)
+      })
     });
     return result
   }
@@ -101,5 +114,18 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   getAddresses() {
     return Promise.resolve(this.keyring.store.getState())
+  }
+
+  getTx (txId) {
+    const txMeta = this.txStore.getState().unapprovedWavesTxs.filter(tx=> tx.id === txId )[0]
+    return txMeta
+  }
+
+  approveTransaction(txId){
+    this._setTxStatus(txId, 'approved')
+  }
+
+  cancelTransaction(txId){
+    this._setTxStatus(txId, 'rejected')
   }
 }
