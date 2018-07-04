@@ -182,13 +182,8 @@ confirmSendWaves.prototype.renderHeaderRow = function () {
 
   return (
     h('.page-container__header-row', [
-      // h('span.page-container__back-button', {
-      //   onClick: () => this.editTransaction(),
-      //   style: {
-      //     visibility: isTxReprice ? 'hidden' : 'initial',
-      //   },
-      // }, 'Edit'),
-      !isFullScreen && h(NetworkDisplay),
+      !isFullScreen &&  h('.network-display__container', [h('.network-name', 'WAVES TESTNET')
+      ]),
     ])
   )
 }
@@ -207,7 +202,6 @@ confirmSendWaves.prototype.renderHeader = function () {
 }
 
 confirmSendWaves.prototype.render = function () {
-  debugger
   const txParams = this.props.txData.txParams
   console.log(txParams)
   return (
@@ -274,12 +268,12 @@ confirmSendWaves.prototype.render = function () {
               }),
             }, [
               h('span.confirm-screen-label', [ this.context.t('total') + ' ' ]),
-              h('div.confirm-screen-total-box__subtitle', [ this.context.t('amountPlusGas') ]),
+              h('div.confirm-screen-total-box__subtitle', [ 'Amount + fee' ]),
             ]),
 
             h('div.confirm-screen-section-column', [
              // h('div.confirm-screen-row-info', `${convertedTotalInFiat} ${currentCurrency.toUpperCase()}`),
-              h('div.confirm-screen-row-detail', `${txParams.amount} WAVES`),
+              h('div.confirm-screen-row-detail', `${txParams.amount + txParams.fee} WAVES`),
             ]),
 
             this.renderErrorMessage('insufficientFunds'),
