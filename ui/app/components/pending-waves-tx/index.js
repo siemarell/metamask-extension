@@ -6,9 +6,10 @@ const clone = require('clone')
 const inherits = require('util').inherits
 const actions = require('../../actions')
 const Loading = require('../loading-screen')
+const ConfirmSendWaves = require('./confirm-send-waves')
 
 const TX_TYPES = {
-  SEND_WAVES: 'waves_transfer',
+  SEND_WAVES: 'waves_transfer'
 }
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(PendingTx)
@@ -78,10 +79,7 @@ PendingTx.prototype.gatherTxMeta = function () {
 PendingTx.prototype.render = function () {
   const {
     isFetching,
-    transactionType,
-    tokenAddress,
-    tokenSymbol,
-    tokenDecimals,
+    transactionType
   } = this.state
 
   const { sendTransaction } = this.props
