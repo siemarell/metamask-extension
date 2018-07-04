@@ -10,6 +10,7 @@ const log = require('loglevel')
 const R = require('ramda')
 
 const PendingTx = require('./components/pending-tx')
+const PendingWavesTx = require('./components/pending-waves-tx')
 const SignatureRequest = require('./components/signature-request')
 // const PendingMsg = require('./components/pending-msg')
 // const PendingPersonalMsg = require('./components/pending-personal-msg')
@@ -207,7 +208,10 @@ function currentTxView (opts) {
   const { txData } = opts
   const { txParams, msgParams } = txData
 
-  if (txParams) {
+  if (txData.type === 'waves_transfer') {
+    log.debug('wavesTranser detected, rendering pending-waves tx')
+    return h(PendingWavesTx, opts)
+  }else if (txParams) {
     log.debug('txParams detected, rendering pending tx')
     return h(PendingTx, opts)
   } else if (msgParams) {
