@@ -35,11 +35,12 @@ class Home extends Component {
       unapprovedMsgCount = 0,
       unapprovedPersonalMsgCount = 0,
       unapprovedTypedMessagesCount = 0,
+      unapprovedWavesTxs = []
     } = this.props
 
     // unapprovedTxs and unapproved messages
     if (Object.keys(unapprovedTxs).length ||
-      unapprovedTypedMessagesCount + unapprovedMsgCount + unapprovedPersonalMsgCount > 0) {
+      unapprovedTypedMessagesCount + unapprovedMsgCount + unapprovedPersonalMsgCount + unapprovedWavesTxs.length > 0) {
       history.push(CONFIRM_TRANSACTION_ROUTE)
     }
   }
@@ -284,6 +285,7 @@ function mapStateToProps (state) {
     unapprovedMsgCount,
     unapprovedPersonalMsgCount,
     unapprovedTypedMessagesCount,
+    unapprovedWavesTxs
   } = metamask
   const selected = address || Object.keys(accounts)[0]
 
@@ -309,6 +311,7 @@ function mapStateToProps (state) {
     unapprovedMsgCount,
     unapprovedPersonalMsgCount,
     unapprovedTypedMessagesCount,
+    unapprovedWavesTxs,
     menuOpen: state.appState.menuOpen,
     network: state.metamask.network,
     provider: state.metamask.provider,
