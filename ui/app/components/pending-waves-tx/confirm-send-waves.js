@@ -70,49 +70,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
   return {
     clearSend: () => dispatch(actions.clearSend()),
-    editTransaction: txMeta => {
-      const { id, txParams } = txMeta
-      const {
-        gas: gasLimit,
-        gasPrice,
-        to,
-        value: amount,
-      } = txParams
-
-      dispatch(actions.updateSend({
-        gasLimit,
-        gasPrice,
-        gasTotal: null,
-        to,
-        amount,
-        errors: { to: null, amount: null },
-        editingTransactionId: id,
-      }))
-    },
     cancelTransaction: ({ id }) => dispatch(actions.cancelTx({ id })),
-    showCustomizeGasModal: (txMeta, sendGasLimit, sendGasPrice, sendGasTotal) => {
-      const { id, txParams, lastGasPrice } = txMeta
-      const { gas: txGasLimit, gasPrice: txGasPrice } = txParams
-
-      let forceGasMin
-      if (lastGasPrice) {
-        forceGasMin = ethUtil.addHexPrefix(multiplyCurrencies(lastGasPrice, 1.1, {
-          multiplicandBase: 16,
-          multiplierBase: 10,
-          toNumericBase: 'hex',
-          fromDenomination: 'WEI',
-        }))
-      }
-
-      dispatch(actions.updateSend({
-        gasLimit: sendGasLimit || txGasLimit,
-        gasPrice: sendGasPrice || txGasPrice,
-        editingTransactionId: id,
-        gasTotal: sendGasTotal,
-        forceGasMin,
-      }))
-      dispatch(actions.showModal({ name: 'CUSTOMIZE_GAS' }))
-    },
     updateSendErrors: error => dispatch(updateSendErrors(error)),
   }
 }
@@ -290,8 +248,8 @@ confirmSendWaves.prototype.render = function () {
           // Cancel Button
           h('button.btn-cancel.page-container__footer-button.allcaps', {
             onClick: (event) => {
-              clearSend()
-              this.cancel(event, txParams)
+              this.props.clearSend()
+              this.cancel(event, this.props.txData)
             },
           }, this.context.t('cancel')),
 
@@ -314,21 +272,7 @@ confirmSendWaves.prototype.renderErrorMessage = function (message) {
 }
 
 confirmSendWaves.prototype.onSubmit = function (event) {
-  event.preventDefault()
-  const { updateSendErrors } = this.props
-  const txMeta = this.gatherTxMeta()
-  const valid = this.checkValidity()
-  const balanceIsSufficient = this.isBalanceSufficient(txMeta)
-  this.setState({ valid, submitting: true })
-
-  if (valid && this.verifyGasParams() && balanceIsSufficient) {
-    this.props.sendTransaction(txMeta, event)
-  } else if (!balanceIsSufficient) {
-    updateSendErrors({ insufficientFunds: 'insufficientFunds' })
-  } else {
-    updateSendErrors({ invalidGasParams: 'invalidGasParams' })
-    this.setState({ submitting: false })
-  }
+  this.props.sendTransaction({}, event)
 }
 
 confirmSendWaves.prototype.cancel = function (event, txMeta) {
