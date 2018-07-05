@@ -1040,7 +1040,6 @@ function cancelTx (txData) {
         cancelFunction = background.cancelTransaction.bind(background)
       }
       cancelFunction(txData.id, () => {
-        debugger
         dispatch(actions.clearSend())
         dispatch(actions.completedTx(txData.id))
         resolve(txData)

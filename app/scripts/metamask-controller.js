@@ -80,7 +80,7 @@ module.exports = class MetamaskController extends EventEmitter {
     this.networkController = new NetworkController(initState.NetworkController)
 
     // waves
-    this.wavesNetworkController = new WavesNetworkController(initState.WavesNetworkController)
+    this.wavesNetworkController = new WavesNetworkController({initState: initState.WavesNetworkController})
 
     // config manager
     this.configManager = new ConfigManager({
@@ -208,6 +208,7 @@ module.exports = class MetamaskController extends EventEmitter {
       ShapeShiftController: this.shapeshiftController.store,
       NetworkController: this.networkController.store,
       InfuraController: this.infuraController.store,
+      WavesNetworkController: this.wavesNetworkController.txStore
     })
 
     this.memStore = new ComposableObservableStore(null, {
@@ -227,7 +228,7 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesNetworkController.txStore,
+      WavesNetworkController: this.wavesNetworkController.unapprovedTxStore,
       WavesKeyring: this.wavesNetworkController.keyring.store
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))

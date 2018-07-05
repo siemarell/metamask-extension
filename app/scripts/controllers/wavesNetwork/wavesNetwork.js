@@ -1,6 +1,5 @@
 const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
-const ComposableObservableStore = require('../../lib/ComposableObservableStore')
 const log = require('loglevel')
 const WavesApi = require('@waves/waves-api')
 const createId = require('../../lib/random-id')
@@ -9,10 +8,13 @@ const WavesKeyring = require('./wavesKeyring')
 module.exports = class WavesNetworkController extends EventEmitter {
   constructor(opts = {}) {
     super()
-    this.txStore = opts.networkStore || new ObservableStore({
-      //wavesTransactions: [],
-      unapprovedWavesTxs: []
-    })
+
+    //setup store
+    const initState =  opts.initState || {transactions: []}
+    this.txStore = new ObservableStore(initState)
+    this.unapprovedTxStore =  new ObservableStore()
+    this._updateUnapprovedTxStore()
+    this.txStore.subscribe(()=>this._updateUnapprovedTxStore())
 
     //Setup Waves patched api
     const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
@@ -20,17 +22,10 @@ module.exports = class WavesNetworkController extends EventEmitter {
     Waves.API.Node.addresses.signText = this.signText.bind(this)
     Waves.API.Node.assets.transfer = this.transfer.bind(this)
     this.Waves = Waves
-    //console.log(this.Waves)
 
     // Setup Keyring
     this.keyring = new WavesKeyring()
 
-    // Setup composed store doesnt work !!!
-    // this.store = new ComposableObservableStore(null,{
-    //   txStore: this.txStore,
-    //   keyringStore: this.keyring.store
-    // })
-    // console.log(this.store.getFlatState())
   }
 
   addUnapprovedTx(txMeta){
@@ -41,22 +36,22 @@ module.exports = class WavesNetworkController extends EventEmitter {
       this.removeAllListeners(`${txMeta.id}:signed`)
     })
     const oldState = this.txStore.getState()
-    const oldTxs = this.txStore.getState().unapprovedWavesTxs
+    const oldTxs = this.txStore.getState().transactions
     const newTxs = [...oldTxs, txMeta]
-    const newState = Object.assign({}, oldState, {unapprovedWavesTxs: newTxs})
+    const newState = Object.assign({}, oldState, {transactions: newTxs})
     this._saveState(newState)
   }
 
   _setTxStatus(txId, status){
     const txMeta = this.getTx(txId)
     txMeta.status = status
-    const txList = this.txStore.getState().wavesTransactions
+    const txList = this.txStore.getState().transactions
     const index = txList.findIndex(txMeta=> txMeta.id === txId)
     txList[index] = txMeta
     this.emit(`${txMeta.id}:${status}`, txId)
     this.emit(`tx:status-update`, txId, status)
     this.emit('update:badge')
-    this._saveState({wavesTransactions: txList})
+    this._saveState({transactions: txList})
   }
 
   _saveState(newState){
@@ -96,7 +91,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
         resolve(`approved: ${txId}`)
       })
       this.once(`${txMeta.id}:rejected`, txId => {
-        reject(`approved: ${txId}`)
+        reject(`rejected: ${txId}`)
       })
     });
     return result
@@ -117,8 +112,13 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   getTx (txId) {
-    const txMeta = this.txStore.getState().unapprovedWavesTxs.filter(tx=> tx.id === txId )[0]
+    const txMeta = this.txStore.getState().transactions.filter(tx=> tx.id === txId )[0]
     return txMeta
+  }
+
+  _updateUnapprovedTxStore(){
+    const unapprovedTxs = this.txStore.getState().transactions.filter(tx => tx.status === 'unapproved')
+    this.unapprovedTxStore.updateState({unapprovedWavesTxs: unapprovedTxs})
   }
 
   async approveTransaction(txId){
@@ -126,7 +126,6 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   async cancelTransaction(txId){
-    debugger
     this._setTxStatus(txId, 'rejected')
   }
 }
