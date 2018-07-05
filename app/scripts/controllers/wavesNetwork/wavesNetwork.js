@@ -26,7 +26,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this.keyring = new WavesKeyring()
 
   }
-
+  getUnapprovedTxCount = () => this.unapprovedTxStore.getState().unapprovedWavesTxs.length
   addUnapprovedTx(txMeta){
     this.once(`${txMeta.id}:approved`, function (txId) {
       this.removeAllListeners(`${txMeta.id}:rejected`)
@@ -91,6 +91,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
       time: transferData.timestamp
     }
     this.addUnapprovedTx(txMeta)
+    this.emit('update:badge')
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
     return new Promise((resolve, reject) => {
       this.once(`${txMeta.id}:finished`, (finishedTxMeta) => {

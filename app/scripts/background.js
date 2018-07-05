@@ -392,6 +392,7 @@ function setupController (initState, initLangCode) {
   controller.txController.on('update:badge', updateBadge)
   controller.messageManager.on('updateBadge', updateBadge)
   controller.personalMessageManager.on('updateBadge', updateBadge)
+  controller.wavesNetworkController.on('update:badge', updateBadge)
 
   /**
    * Updates the Web Extension's "badge" number, on the little fox in the toolbar.
@@ -403,7 +404,9 @@ function setupController (initState, initLangCode) {
     var unapprovedMsgCount = controller.messageManager.unapprovedMsgCount
     var unapprovedPersonalMsgs = controller.personalMessageManager.unapprovedPersonalMsgCount
     var unapprovedTypedMsgs = controller.typedMessageManager.unapprovedTypedMessagesCount
-    var count = unapprovedTxCount + unapprovedMsgCount + unapprovedPersonalMsgs + unapprovedTypedMsgs
+    var unapprovedWavesTxCount = controller.wavesNetworkController.getUnapprovedTxCount()
+    console.log(unapprovedWavesTxCount)
+    var count = unapprovedTxCount + unapprovedMsgCount + unapprovedPersonalMsgs + unapprovedTypedMsgs + unapprovedWavesTxCount
     if (count) {
       label = String(count)
     }
