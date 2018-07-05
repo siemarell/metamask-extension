@@ -168,8 +168,8 @@ confirmSendWaves.prototype.render = function () {
       this.renderHeader(),
       h('.page-container__content', [
         h(SenderToRecipient, {
-          senderName: 'sender',
-          senderAddress: 'sender',
+          senderName:txParams.sender,
+          senderAddress: txParams.sender,
           recipientName: txParams.recipient,
           recipientAddress: txParams.recipient,
         }),
@@ -180,11 +180,11 @@ confirmSendWaves.prototype.render = function () {
             fontSize: '16px',
           },
         }, [
-          `You're sending to Recipient ...${txParams.recipient}`,
+          `You're sending to Recipient ${txParams.recipient}`,
         ]),
 
-       h('h3.flex-center.confirm-screen-send-amount', [`${txParams.amount}`]),
-        h('h3.flex-center.confirm-screen-send-amount-currency', [ 'WAVES' ]),
+       h('h3.flex-center.confirm-screen-send-amount', [`${txParams.amount / 100000000}`]),
+        h('h3.flex-center.confirm-screen-send-amount-currency', [ `${txParams.assetId}` ]),
         // h('div.flex-center.confirm-memo-wrapper', [
         //   h('h3.confirm-screen-send-memo', [ memo ? `"${memo}"` : '' ]),
         // ]),
@@ -194,15 +194,15 @@ confirmSendWaves.prototype.render = function () {
             h('span.confirm-screen-label.confirm-screen-section-column', [ this.context.t('from') ]),
             h('div.confirm-screen-section-column', [
               h('div.confirm-screen-row-info', 'Sender'),
-              h('div.confirm-screen-row-detail', `...Sender`),
+              h('div.confirm-screen-row-detail', `${txParams.sender}`),
             ]),
           ]),
 
           h('section.flex-row.flex-center.confirm-screen-row', [
             h('span.confirm-screen-label.confirm-screen-section-column', [ this.context.t('to') ]),
             h('div.confirm-screen-section-column', [
-              h('div.confirm-screen-row-info', txParams.recipient),
-              h('div.confirm-screen-row-detail', `...${txParams.recipient}`),
+              h('div.confirm-screen-row-info', 'Recipient'),
+              h('div.confirm-screen-row-detail', `${txParams.recipient}`),
             ]),
           ]),
 
@@ -230,8 +230,8 @@ confirmSendWaves.prototype.render = function () {
             ]),
 
             h('div.confirm-screen-section-column', [
-             // h('div.confirm-screen-row-info', `${convertedTotalInFiat} ${currentCurrency.toUpperCase()}`),
-              h('div.confirm-screen-row-detail', `${txParams.amount + txParams.fee} WAVES`),
+              h('div.confirm-screen-row-info', `${(txParams.amount + txParams.fee)/100000000} ${txParams.assetId}`),
+              h('div.confirm-screen-row-detail', ``),
             ]),
 
             this.renderErrorMessage('insufficientFunds'),
