@@ -925,7 +925,13 @@ function updateAndApproveTx (txData) {
     log.debug(`actions calling background.updateAndApproveTx`)
 
     return new Promise((resolve, reject) => {
-      background.updateAndApproveTransaction(txData, err => {
+      let updateFunction;
+      if(txData.type === 'waves_transfer'){
+        updateFunction = background.wavesApproveTransaction.bind(background)
+      }else{
+        updateFunction =  background.updateAndApproveTransaction.bind(background)
+      }
+      updateFunction(txData, err => {
         dispatch(actions.hideLoadingIndication())
         dispatch(actions.updateTransactionParams(txData.id, txData.txParams))
         dispatch(actions.clearSend())

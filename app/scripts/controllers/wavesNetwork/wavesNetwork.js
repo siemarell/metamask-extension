@@ -22,7 +22,6 @@ module.exports = class WavesNetworkController extends EventEmitter {
     Waves.API.Node.addresses.signText = this.signText.bind(this)
     Waves.API.Node.assets.transfer = this.transfer.bind(this)
     this.Waves = Waves
-
     // Setup Keyring
     this.keyring = new WavesKeyring()
 
@@ -121,8 +120,8 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this.unapprovedTxStore.updateState({unapprovedWavesTxs: unapprovedTxs})
   }
 
-  async approveTransaction(txId){
-    this._setTxStatus(txId, 'approved')
+  async approveTransaction(txMeta){
+    this._setTxStatus(txMeta.id, 'approved')
   }
 
   async cancelTransaction(txId){
