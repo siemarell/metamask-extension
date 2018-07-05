@@ -28,11 +28,11 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   addUnapprovedTx(txMeta){
-    this.once(`${txMeta.id}:signed`, function (txId) {
+    this.once(`${txMeta.id}:approved`, function (txId) {
       this.removeAllListeners(`${txMeta.id}:rejected`)
     })
     this.once(`${txMeta.id}:rejected`, function (txId) {
-      this.removeAllListeners(`${txMeta.id}:signed`)
+      this.removeAllListeners(`${txMeta.id}:approved`)
     })
     const oldState = this.txStore.getState()
     const oldTxs = this.txStore.getState().transactions
@@ -44,13 +44,17 @@ module.exports = class WavesNetworkController extends EventEmitter {
   _setTxStatus(txId, status){
     const txMeta = this.getTx(txId)
     txMeta.status = status
-    const txList = this.txStore.getState().transactions
-    const index = txList.findIndex(txMeta=> txMeta.id === txId)
-    txList[index] = txMeta
-    this.emit(`${txMeta.id}:${status}`, txId)
-    this.emit(`tx:status-update`, txId, status)
-    this.emit('update:badge')
-    this._saveState({transactions: txList})
+    try {
+      this.updateTx(txMeta)
+      this.emit(`${txMeta.id}:${status}`, txId)
+      this.emit(`tx:status-update`, txId, status)
+      if (['submitted', 'rejected', 'failed'].includes(status)) {
+        this.emit(`${txMeta.id}:finished`, txMeta)
+      }
+      this.emit('update:badge')
+    } catch (error) {
+      log.error(error)
+    }
   }
 
   _saveState(newState){
@@ -59,9 +63,12 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
     //const seed = accounts[sender]
+    const senderPublicKey = this.keyring.publicKeyFromAddress(sender)
+    if (!senderPublicKey) return Promise.reject(new Error('No account found with this address'))
     const transferData = {
-      //Metamask field sender
+      //Sender
       sender: sender,
+      senderPublicKey: senderPublicKey,
       // An arbitrary address; mine, in this example
       recipient: recipient,
       // ID of a token, or WAVES
@@ -85,15 +92,20 @@ module.exports = class WavesNetworkController extends EventEmitter {
     }
     this.addUnapprovedTx(txMeta)
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
-    const result = new Promise((resolve, reject) => {
-      this.once(`${txMeta.id}:approved`, txId => {
-        resolve(`approved: ${txId}`)
-      })
-      this.once(`${txMeta.id}:rejected`, txId => {
-        reject(`rejected: ${txId}`)
+    return new Promise((resolve, reject) => {
+      this.once(`${txMeta.id}:finished`, (finishedTxMeta) => {
+        switch (finishedTxMeta.status) {
+          case 'submitted':
+            return resolve(finishedTxMeta.txParams)
+          case 'rejected':
+            return reject(new Error('MetaMask Tx Signature: User denied transaction signature.'))
+          case 'failed':
+            return reject(new Error(finishedTxMeta.err.message))
+          default:
+            return reject(new Error(`MetaMask Tx Signature: Unknown problem: ${JSON.stringify(finishedTxMeta.txParams)}`))
+        }
       })
     });
-    return result
   }
 
   signText(address, text) {
@@ -111,7 +123,8 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   getTx (txId) {
-    const txMeta = this.txStore.getState().transactions.filter(tx=> tx.id === txId )[0]
+    const txList = this.txStore.getState().transactions
+    const txMeta = txList.filter(tx=> tx.id === txId )[0]
     return txMeta
   }
 
@@ -120,9 +133,55 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this.unapprovedTxStore.updateState({unapprovedWavesTxs: unapprovedTxs})
   }
 
-  async approveTransaction(txMeta){
-    this._setTxStatus(txMeta.id, 'approved')
+  updateTx(txMeta){
+    // commit txMeta to state
+    const txId = txMeta.id
+    const txList = this.txStore.getState().transactions
+    const index = txList.findIndex(txData => txData.id === txId)
+    txList[index] = txMeta
+    this._saveState({transactions: txList})
   }
+
+  async approveTransaction(txId){
+    this._setTxStatus(txId, 'approved')
+  }
+
+  async signTransaction(txId){
+    const txMeta = this.getTx(txId)
+    const signedTxParams = await this.keyring.sign(txMeta.txParams, txMeta.type.split('_')[1])
+    const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
+    this.updateTx(newTxMeta)
+    this._setTxStatus(txMeta.id, 'signed')
+  }
+
+  async publishTransaction(txId){
+    const txMeta = this.getTx(txId)
+    try{
+      const publishedTx = await this.Waves.API.Node.transactions.rawBroadcast(txMeta.txParams)
+      const newTxMeta = Object.assign(txMeta, {txParams: publishedTx})
+      this.updateTx(newTxMeta)
+      this._setTxStatus(txId, 'submitted')
+    }catch (e) {
+      const newTxMeta = Object.assign(txMeta, {err: e})
+      this.updateTx(newTxMeta)
+      this._setTxStatus(txId, 'failed')
+    }
+
+    this._setTxStatus(txId, 'submitted')
+  }
+
+  async sendTransaction(txMeta){
+    const txId = txMeta.id
+    try{
+      await this.approveTransaction(txId)
+      await this.signTransaction(txId)
+      await this.publishTransaction(txId)
+    }catch (e) {
+      console.log(e)
+    }
+  }
+
+
 
   async cancelTransaction(txId){
     this._setTxStatus(txId, 'rejected')
