@@ -70,7 +70,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
   return {
     clearSend: () => dispatch(actions.clearSend()),
-    cancelTransaction: ({ id }) => dispatch(actions.cancelTx({ id })),
+    cancelTransaction: (txMeta) => dispatch(actions.cancelTx(txMeta)),
     updateSendErrors: error => dispatch(updateSendErrors(error)),
   }
 }

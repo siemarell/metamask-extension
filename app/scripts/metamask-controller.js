@@ -412,8 +412,8 @@ module.exports = class MetamaskController extends EventEmitter {
       markNoticeRead: noticeController.markNoticeRead.bind(noticeController),
 
       // waves
-      wavesApproveTransaction: wavesController.approveTransaction.bind(wavesController),
-      wavesCancelTransaction: wavesController.cancelTransaction.bind(wavesController),
+      wavesApproveTransaction: nodeify(wavesController.approveTransaction, wavesController),
+      wavesCancelTransaction: nodeify(wavesController.cancelTransaction, wavesController),
 
     }
   }

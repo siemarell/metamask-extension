@@ -1033,7 +1033,14 @@ function cancelTx (txData) {
   return dispatch => {
     log.debug(`background.cancelTransaction`)
     return new Promise((resolve, reject) => {
-      background.cancelTransaction(txData.id, () => {
+      let cancelFunction
+      if (txData.type === 'waves_transfer'){
+        cancelFunction = background.wavesCancelTransaction.bind(background)
+      }else{
+        cancelFunction = background.cancelTransaction.bind(background)
+      }
+      cancelFunction(txData.id, () => {
+        debugger
         dispatch(actions.clearSend())
         dispatch(actions.completedTx(txData.id))
         resolve(txData)

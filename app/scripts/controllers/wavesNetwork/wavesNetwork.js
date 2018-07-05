@@ -121,11 +121,12 @@ module.exports = class WavesNetworkController extends EventEmitter {
     return txMeta
   }
 
-  approveTransaction(txId){
+  async approveTransaction(txId){
     this._setTxStatus(txId, 'approved')
   }
 
-  cancelTransaction(txId){
+  async cancelTransaction(txId){
+    debugger
     this._setTxStatus(txId, 'rejected')
   }
 }
