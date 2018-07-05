@@ -405,7 +405,6 @@ function setupController (initState, initLangCode) {
     var unapprovedPersonalMsgs = controller.personalMessageManager.unapprovedPersonalMsgCount
     var unapprovedTypedMsgs = controller.typedMessageManager.unapprovedTypedMessagesCount
     var unapprovedWavesTxCount = controller.wavesNetworkController.getUnapprovedTxCount()
-    console.log(unapprovedWavesTxCount)
     var count = unapprovedTxCount + unapprovedMsgCount + unapprovedPersonalMsgs + unapprovedTypedMsgs + unapprovedWavesTxCount
     if (count) {
       label = String(count)

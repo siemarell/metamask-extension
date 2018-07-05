@@ -92,6 +92,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
     }
     this.addUnapprovedTx(txMeta)
     this.emit('update:badge')
+    this.emit('newUnapprovedTx', txMeta)
     //const result = this.Waves.API.Node.transactions.broadcast('transfer', transferData, seed.keyPair)
     return new Promise((resolve, reject) => {
       this.once(`${txMeta.id}:finished`, (finishedTxMeta) => {

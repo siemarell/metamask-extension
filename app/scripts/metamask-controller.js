@@ -81,6 +81,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
     // waves
     this.wavesNetworkController = new WavesNetworkController({initState: initState.WavesNetworkController})
+    this.wavesNetworkController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
 
     // config manager
     this.configManager = new ConfigManager({
