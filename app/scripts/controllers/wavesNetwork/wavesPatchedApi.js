@@ -1,4 +1,4 @@
-const WavesApi = require('@waves/waves-api')
+const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
 
 const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange']

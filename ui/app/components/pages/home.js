@@ -35,12 +35,12 @@ class Home extends Component {
       unapprovedMsgCount = 0,
       unapprovedPersonalMsgCount = 0,
       unapprovedTypedMessagesCount = 0,
-      unapprovedWavesTxs = []
+      unapprovedWavesTxs = {}
     } = this.props
 
     // unapprovedTxs and unapproved messages
     if (Object.keys(unapprovedTxs).length ||
-      unapprovedTypedMessagesCount + unapprovedMsgCount + unapprovedPersonalMsgCount + unapprovedWavesTxs.length > 0) {
+      unapprovedTypedMessagesCount + unapprovedMsgCount + unapprovedPersonalMsgCount +Object.keys(unapprovedWavesTxs).length > 0) {
       history.push(CONFIRM_TRANSACTION_ROUTE)
     }
   }

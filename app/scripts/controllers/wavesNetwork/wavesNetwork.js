@@ -1,7 +1,7 @@
 const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
 const log = require('loglevel')
-const WavesApi = require('@waves/waves-api')
+const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 const createId = require('../../lib/random-id')
 const WavesKeyring = require('./wavesKeyring')
 
@@ -26,7 +26,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
     this.keyring = new WavesKeyring()
 
   }
-  getUnapprovedTxCount = () => this.unapprovedTxStore.getState().unapprovedWavesTxs.length
+  getUnapprovedTxCount = () => Object.keys(this.unapprovedTxStore.getState().unapprovedWavesTxs).length
   addUnapprovedTx(txMeta){
     this.once(`${txMeta.id}:approved`, function (txId) {
       this.removeAllListeners(`${txMeta.id}:rejected`)
@@ -131,7 +131,12 @@ module.exports = class WavesNetworkController extends EventEmitter {
   }
 
   _updateUnapprovedTxStore(){
-    const unapprovedTxs = this.txStore.getState().transactions.filter(tx => tx.status === 'unapproved')
+    const unapprovedTxs = this.txStore.getState().transactions
+      .filter(tx => tx.status === 'unapproved')
+      .reduce((prev,next) =>{
+        prev[next.id] = next
+        return prev
+      },{})
     this.unapprovedTxStore.updateState({unapprovedWavesTxs: unapprovedTxs})
   }
 

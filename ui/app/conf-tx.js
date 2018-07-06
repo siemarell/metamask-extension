@@ -74,7 +74,7 @@ ConfirmTxScreen.prototype.getUnapprovedMessagesTotal = function () {
 ConfirmTxScreen.prototype.componentDidMount = function () {
   const {
     unapprovedTxs = {},
-    unapprovedWavesTxs,
+    unapprovedWavesTxs = {},
     network,
     send,
   } = this.props
@@ -92,7 +92,7 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
     selectedAddressTxList,
     send,
     history,
-    unapprovedWavesTxs,
+    unapprovedWavesTxs = {},
     match: { params: { id: transactionId } = {} },
   } = this.props
 

@@ -20,7 +20,7 @@ module.exports = function (unapprovedTxs, unapprovedMsgs, personalMsgs, typedMes
   log.debug(`tx helper found ${typedValues.length} unsigned typed messages`)
   allValues = allValues.concat(typedValues)
 
-  const wavesValues = unapprovedWavesTxs
+  const wavesValues = valuesFor(unapprovedWavesTxs)
   log.debug(`tx helper found ${wavesValues.length} unsigned waves txs`)
   allValues = allValues.concat(wavesValues)
 

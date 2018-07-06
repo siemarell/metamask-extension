@@ -1,5 +1,5 @@
 const ObservableStore = require('obs-store')
-const WavesApi = require('@waves/waves-api')
+const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 
 module.exports = class WavesKeyring {
   constructor(){
