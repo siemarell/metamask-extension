@@ -112,10 +112,10 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   signText(address, text) {
     const uint8Array = new TextEncoder("utf-8").encode(text)
-    const signature = this.Waves.crypto.buildTransactionSignature(uint8Array, accounts[address].keyPair.privateKey)
+    const signature = this.keyring.signBytes(address, uint8Array)
     return Promise.resolve({
       "message" : text,
-      "publicKey" : accounts[address].keyPair.publicKey,
+      "publicKey" : this.keyring.publicKeyFromAddress(address),
       "signature" : signature
     })
   }
@@ -155,7 +155,7 @@ module.exports = class WavesNetworkController extends EventEmitter {
 
   async signTransaction(txId){
     const txMeta = this.getTx(txId)
-    const signedTxParams = await this.keyring.sign(txMeta.txParams, txMeta.type.split('_')[1])
+    const signedTxParams = await this.keyring.signTx(txMeta.txParams, txMeta.type.split('_')[1])
     const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
     this.updateTx(newTxMeta)
     this._setTxStatus(txMeta.id, 'signed')
