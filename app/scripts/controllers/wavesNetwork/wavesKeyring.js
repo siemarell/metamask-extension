@@ -3,7 +3,8 @@ const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 
 module.exports = class WavesKeyring {
   constructor(){
-    const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange']
+    const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
+      'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
     this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
     this.accounts = SEEDS
       .map(seed => {
