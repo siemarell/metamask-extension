@@ -272,6 +272,7 @@ confirmSendWaves.prototype.renderErrorMessage = function (message) {
 }
 
 confirmSendWaves.prototype.onSubmit = function (event) {
+  event.preventDefault()
   this.props.sendTransaction(this.props.txData, event)
 }
 
