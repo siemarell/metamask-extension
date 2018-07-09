@@ -121,7 +121,7 @@ module.exports = class WavesTxController extends EventEmitter {
   }
 
   getAddresses() {
-    return Promise.resolve(Object.keys(this.keyring.store.getState().wavesAccounts))
+    return Promise.resolve(this.keyring.getAccounts())
   }
 
   getTx (txId) {

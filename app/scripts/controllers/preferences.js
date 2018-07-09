@@ -31,7 +31,7 @@ class PreferencesController {
       identities: {},
       lostIdentities: {},
       wavesIdentities: {},
-      wavesTokens: {}
+      wavesTokens: []
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
@@ -87,6 +87,22 @@ class PreferencesController {
     this.store.updateState({ identities })
   }
 
+  /**
+   * Updates waves identities to only include specified addresses. Removes identities
+   * not included in addresses array
+   *
+   * @param {string[]} addresses An array of hex addresses
+   *
+   */
+  setWavesAddresses (addresses) {
+    const oldIdentities = this.store.getState().wavesIdentities
+    const wavesIdentities = addresses.reduce((ids, address, index) => {
+      const oldId = oldIdentities[address] || {}
+      ids[address] = {name: `Account ${index + 1}`, address, ...oldId}
+      return ids
+    }, {})
+    this.store.updateState({ wavesIdentities })
+  }
   /**
    * Adds addresses to the identities object without removing identities
    *

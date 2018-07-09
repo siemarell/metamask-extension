@@ -4,22 +4,11 @@ const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 const encryptor = require('browser-passworder')
 const EventEmitter = require('events').EventEmitter
 
-module.exports = class WavesKeyring extends EventEmitter{
-  constructor(opts){
-    super()
-    // const initState = opts.initState || {}
-    // this.store = new ObservableStore(initState)
-    // this.memStore = new ObservableStore({
-    //   wavesIsUnlocked: false,
-    //   wavesKeyrings: [],
-    // })
-    //
-    // this.encryptor = opts.encryptor || encryptor
-    // this.keyrings = []
-    // this.getNetwork = opts.getNetwork
-
+module.exports = class WavesKeyring {
+  constructor(){
     const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
       'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
+
     this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
     this.accounts = SEEDS
       .map(seed => {
@@ -29,7 +18,10 @@ module.exports = class WavesKeyring extends EventEmitter{
         prev[next.address] = next
         return prev
       }, {})
-    this.store = new ObservableStore({wavesAccounts: this.accounts})
+  }
+
+  getAccounts(){
+    return Object.keys(this.accounts)
   }
 
   publicKeyFromAddress(address){

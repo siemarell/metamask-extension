@@ -79,10 +79,6 @@ module.exports = class MetamaskController extends EventEmitter {
     // network store
     this.networkController = new NetworkController(initState.NetworkController)
 
-    // waves
-    this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
-    this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
-
     // config manager
     this.configManager = new ConfigManager({
       store: this.store,
@@ -193,6 +189,12 @@ module.exports = class MetamaskController extends EventEmitter {
       initState: initState.ShapeShiftController,
     })
 
+    // waves
+    this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
+    this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
+    this.preferencesController.setWavesAddresses(this.wavesTxController.keyring.getAccounts())
+    //Todo: selected address. Subscribe addresses change
+
     this.networkController.lookupNetwork()
     this.messageManager = new MessageManager()
     this.personalMessageManager = new PersonalMessageManager()
@@ -229,8 +231,7 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesTxController.unapprovedTxStore,
-      WavesKeyring: this.wavesTxController.keyring.store
+      WavesTxController: this.wavesTxController.unapprovedTxStore,
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
