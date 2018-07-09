@@ -28,9 +28,9 @@ module.exports = class WavesKeyring {
     return this.accounts[address] && this.accounts[address].keyPair.publicKey
   }
 
-  async signTx(txData, type){
+  async signTx(txData){
     const privateKey = this.accounts[txData.sender].keyPair.privateKey
-    const transfer = await this.Waves.tools.createTransaction(type, txData)
+    const transfer = await this.Waves.tools.createTransaction(txData.type, txData)
     transfer.addProof(privateKey)
     return await transfer.getJSON()
   }

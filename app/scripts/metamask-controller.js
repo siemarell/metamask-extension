@@ -211,7 +211,7 @@ module.exports = class MetamaskController extends EventEmitter {
       ShapeShiftController: this.shapeshiftController.store,
       NetworkController: this.networkController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesTxController.txStore
+      WavesNetworkController: this.wavesTxController.store
     })
 
     this.memStore = new ComposableObservableStore(null, {
@@ -231,7 +231,7 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesTxController: this.wavesTxController.unapprovedTxStore,
+      WavesTxController: this.wavesTxController.memStore,
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
@@ -415,7 +415,7 @@ module.exports = class MetamaskController extends EventEmitter {
       markNoticeRead: noticeController.markNoticeRead.bind(noticeController),
 
       // waves
-      wavesApproveTransaction: nodeify(wavesController.sendTransaction, wavesController),
+      wavesApproveTransaction: nodeify(wavesController.updateAndApproveTransaction, wavesController),
       wavesCancelTransaction: nodeify(wavesController.cancelTransaction, wavesController),
 
     }

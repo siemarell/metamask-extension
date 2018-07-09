@@ -926,7 +926,7 @@ function updateAndApproveTx (txData) {
 
     return new Promise((resolve, reject) => {
       let updateFunction;
-      if(txData.type === 'waves_transfer'){
+      if(txData.metamaskNetworkId === 'WAVES_TESTNET'){
         updateFunction = background.wavesApproveTransaction.bind(background)
       }else{
         updateFunction =  background.updateAndApproveTransaction.bind(background)
@@ -1040,7 +1040,7 @@ function cancelTx (txData) {
     log.debug(`background.cancelTransaction`)
     return new Promise((resolve, reject) => {
       let cancelFunction
-      if (txData.type === 'waves_transfer'){
+      if (txData.metamaskNetworkId === 'WAVES_TESTNET'){
         cancelFunction = background.wavesCancelTransaction.bind(background)
       }else{
         cancelFunction = background.cancelTransaction.bind(background)

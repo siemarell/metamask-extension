@@ -168,7 +168,7 @@ class TransactionStateManager extends EventEmitter {
         delete txMeta.txParams.data
       }
 
-      this.validateTxParams(txMeta.txParams)
+      //this.validateTxParams(txMeta.txParams)
     }
 
     // create txMeta snapshot for history

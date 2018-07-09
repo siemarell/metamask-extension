@@ -26,7 +26,7 @@ module.exports = class WavesTxController extends EventEmitter {
     this.keyring = new WavesKeyring()
 
   }
-  getUnapprovedTxCount = () => Object.keys(this.unapprovedTxStore.getState().unapprovedWavesTxs).length
+  getUnapprovedTxCount = () => Object.keys(this.unapprovedTxStore.getState().wavesUnapprovedTxs).length
   addUnapprovedTx(txMeta){
     this.once(`${txMeta.id}:approved`, function (txId) {
       this.removeAllListeners(`${txMeta.id}:rejected`)
@@ -137,7 +137,7 @@ module.exports = class WavesTxController extends EventEmitter {
         prev[next.id] = next
         return prev
       },{})
-    this.unapprovedTxStore.updateState({unapprovedWavesTxs: unapprovedTxs})
+    this.unapprovedTxStore.updateState({wavesUnapprovedTxs: unapprovedTxs})
   }
 
   updateTx(txMeta){
