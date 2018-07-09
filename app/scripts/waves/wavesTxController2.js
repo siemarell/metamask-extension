@@ -79,7 +79,7 @@ module.exports = class WavesTxController extends EventEmitter {
       this.txStateManager.once(`${initialTxMeta.id}:finished`, (finishedTxMeta) => {
         switch (finishedTxMeta.status) {
           case 'submitted':
-            return resolve(finishedTxMeta.txParams)
+            return resolve(finishedTxMeta.hash)
           case 'rejected':
             return reject(cleanErrorStack(new Error('MetaMask Tx Signature: User denied transaction signature.')))
           case 'failed':
@@ -148,7 +148,6 @@ module.exports = class WavesTxController extends EventEmitter {
    @param txId {number} - the tx's Id
    */
   async signTransaction(txId){
-    console.log('hello sign')
     const txMeta = this.txStateManager.getTx(txId)
     const signedTxParams = await this.keyring.signTx(txMeta.txParams)
     const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
@@ -161,8 +160,7 @@ module.exports = class WavesTxController extends EventEmitter {
     try{
       const publishedTxParams = await this.Waves.API.Node.transactions.rawBroadcast(txMeta.txParams)
       const newTxMeta = Object.assign({}, txMeta, {txParams: publishedTxParams})
-      // this.txStateManager.updateTx(newTxMeta, 'transactions#signTransaction')
-      console.log('hello')
+      this.setTxHash(txId, newTxMeta.txParams.id)
       this.txStateManager.setTxStatusSubmitted(txId)
     }catch (e) {
       this.txStateManager.setTxStatusFailed(txId, e)
@@ -178,6 +176,17 @@ module.exports = class WavesTxController extends EventEmitter {
     this.txStateManager.setTxStatusRejected(txId)
   }
 
+  /**
+   Sets the txHas on the txMeta
+   @param txId {number} - the tx's Id
+   @param txHash {string} - the hash for the txMeta
+   */
+  setTxHash (txId, txHash) {
+    // Add the tx hash to the persisted meta-tx object
+    const txMeta = this.txStateManager.getTx(txId)
+    txMeta.hash = txHash
+    this.txStateManager.updateTx(txMeta, 'transactions#setTxHash')
+  }
   //
 //           PRIVATE METHODS
 //
