@@ -6,8 +6,8 @@ const EthQuery = require('eth-query')
 const launchMetamaskUi = require('../../ui')
 const StreamProvider = require('web3-stream-provider')
 const setupMultiplex = require('./lib/stream-utils.js').setupMultiplex
-const {cbToPromise, transformMethods} = require("./controllers/wavesNetwork/util")
-const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
+const {cbToPromise, transformMethods} = require("./waves/util")
+const Waves = require('./waves/wavesPatchedApi')
 
 module.exports = initializePopup
 

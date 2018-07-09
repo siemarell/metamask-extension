@@ -46,9 +46,9 @@ const GWEI_BN = new BN('1000000000')
 const percentile = require('percentile')
 const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
-const {cbToPromise, transformMethods} = require('./controllers/wavesNetwork/util')
+const {cbToPromise, transformMethods} = require('./waves/util')
 //const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
-const {WavesNetworkController} = require('./controllers/wavesNetwork')
+const {WavesTxController} = require('./waves/index')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -80,8 +80,8 @@ module.exports = class MetamaskController extends EventEmitter {
     this.networkController = new NetworkController(initState.NetworkController)
 
     // waves
-    this.wavesNetworkController = new WavesNetworkController({initState: initState.WavesNetworkController})
-    this.wavesNetworkController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
+    this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
+    this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
 
     // config manager
     this.configManager = new ConfigManager({
@@ -209,7 +209,7 @@ module.exports = class MetamaskController extends EventEmitter {
       ShapeShiftController: this.shapeshiftController.store,
       NetworkController: this.networkController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesNetworkController.txStore
+      WavesNetworkController: this.wavesTxController.txStore
     })
 
     this.memStore = new ComposableObservableStore(null, {
@@ -229,8 +229,8 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesNetworkController.unapprovedTxStore,
-      WavesKeyring: this.wavesNetworkController.keyring.store
+      WavesNetworkController: this.wavesTxController.unapprovedTxStore,
+      WavesKeyring: this.wavesTxController.keyring.store
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
@@ -338,7 +338,7 @@ module.exports = class MetamaskController extends EventEmitter {
     const noticeController = this.noticeController
     const addressBookController = this.addressBookController
     const networkController = this.networkController
-    const wavesController = this.wavesNetworkController
+    const wavesController = this.wavesTxController
 
     return {
       // etc
@@ -1084,8 +1084,8 @@ module.exports = class MetamaskController extends EventEmitter {
    */
   setupWavesConnection (outStream) {
     const dnode = Dnode({
-      Node: transformMethods(nodeify, this.wavesNetworkController.Waves.API.Node),
-      Matcher: transformMethods(nodeify,this.wavesNetworkController.Waves.API.Matcher)
+      Node: transformMethods(nodeify, this.wavesTxController.Waves.API.Node),
+      Matcher: transformMethods(nodeify,this.wavesTxController.Waves.API.Matcher)
     });
     pump(
       outStream,

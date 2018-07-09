@@ -2,10 +2,10 @@ const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
 const log = require('loglevel')
 const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
-const createId = require('../../lib/random-id')
+const createId = require('../lib/random-id')
 const WavesKeyring = require('./wavesKeyring')
 
-module.exports = class WavesNetworkController extends EventEmitter {
+module.exports = class WavesTxController extends EventEmitter {
   constructor(opts = {}) {
     super()
 

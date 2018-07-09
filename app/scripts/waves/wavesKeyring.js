@@ -1,8 +1,23 @@
+const log = require('loglevel')
 const ObservableStore = require('obs-store')
 const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
+const encryptor = require('browser-passworder')
+const EventEmitter = require('events').EventEmitter
 
-module.exports = class WavesKeyring {
-  constructor(){
+module.exports = class WavesKeyring extends EventEmitter{
+  constructor(opts){
+    super()
+    // const initState = opts.initState || {}
+    // this.store = new ObservableStore(initState)
+    // this.memStore = new ObservableStore({
+    //   wavesIsUnlocked: false,
+    //   wavesKeyrings: [],
+    // })
+    //
+    // this.encryptor = opts.encryptor || encryptor
+    // this.keyrings = []
+    // this.getNetwork = opts.getNetwork
+
     const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
       'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
     this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
