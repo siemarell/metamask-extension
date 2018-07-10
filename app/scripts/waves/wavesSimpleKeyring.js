@@ -1,14 +1,14 @@
 const log = require('loglevel')
 const ObservableStore = require('obs-store')
 const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
-const encryptor = require('browser-passworder')
 const EventEmitter = require('events').EventEmitter
-const type = 'Waves Simple Keyring'
 
 module.exports = class WavesSimpleKeyring extends EventEmitter{
+  static type = 'Waves Simple Keyring'
+
   constructor(opts){
     super()
-    this.type = type
+
     const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
       'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
 
