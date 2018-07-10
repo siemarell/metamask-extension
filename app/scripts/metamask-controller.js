@@ -192,7 +192,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // waves
     this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
     this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
-    this.preferencesController.setWavesAddresses(this.wavesTxController.keyring.getAccounts())
+    //this.preferencesController.setWavesAddresses(this.wavesTxController.keyring.getAccounts())
     //Todo: selected address. Subscribe addresses change
 
     this.networkController.lookupNetwork()

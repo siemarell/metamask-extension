@@ -3,7 +3,7 @@ const ObservableStore = require('obs-store')
 const log = require('loglevel')
 const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 const createId = require('../lib/random-id')
-const WavesKeyring = require('./wavesKeyring')
+const WavesKeyring = require('./wavesSimpleKeyring')
 const TransactionStateManager = require('../controllers/transactions/tx-state-manager')
 const cleanErrorStack = require('../lib/cleanErrorStack')
 
@@ -149,7 +149,7 @@ module.exports = class WavesTxController extends EventEmitter {
    */
   async signTransaction(txId){
     const txMeta = this.txStateManager.getTx(txId)
-    const signedTxParams = await this.keyring.signTx(txMeta.txParams)
+    const signedTxParams = await this.keyring.signTransaction(txMeta.txParams.sender, txMeta.txParams)
     const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
     this.txStateManager.updateTx(newTxMeta, 'transactions#signTransaction')
     this.txStateManager.setTxStatusSigned(txMeta.id)
@@ -280,18 +280,18 @@ module.exports = class WavesTxController extends EventEmitter {
     return this.newUnapprovedTransaction(transferData)
   }
 
-  signText(address, text) {
+  async signText(address, text) {
     const uint8Array = new TextEncoder("utf-8").encode(text)
-    const signature = this.keyring.signBytes(address, uint8Array)
-    return Promise.resolve({
+    const signature = await this.keyring.signMessage(address, uint8Array)
+    return {
       "message" : text,
       "publicKey" : this.keyring.publicKeyFromAddress(address),
       "signature" : signature
-    })
+    }
   }
 
-  getAddresses() {
-    return Promise.resolve(this.keyring.getAccounts())
+  async getAddresses() {
+    return this.keyring.getAccounts()
   }
 
 
