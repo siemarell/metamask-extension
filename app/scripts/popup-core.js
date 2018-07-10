@@ -7,7 +7,9 @@ const launchMetamaskUi = require('../../ui')
 const StreamProvider = require('web3-stream-provider')
 const setupMultiplex = require('./lib/stream-utils.js').setupMultiplex
 const {cbToPromise, transformMethods} = require("./waves/util")
-const Waves = require('./waves/wavesPatchedApi')
+const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
+const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
+
 
 module.exports = initializePopup
 

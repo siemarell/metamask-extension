@@ -1,1 +1,1 @@
-export const WavesTxController = require('./wavesTxController2')
+export const WavesTxController = require('./wavesTxController')
