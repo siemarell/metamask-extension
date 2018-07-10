@@ -2,13 +2,12 @@ const log = require('loglevel')
 const ObservableStore = require('obs-store')
 const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
 const EventEmitter = require('events').EventEmitter
+const type = 'Waves Simple Keyring'
 
-module.exports = class WavesSimpleKeyring extends EventEmitter{
-  static type = 'Waves Simple Keyring'
-
+class WavesSimpleKeyring extends EventEmitter{
   constructor(opts){
     super()
-
+    this.type = type
     const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
       'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
 
@@ -17,11 +16,12 @@ module.exports = class WavesSimpleKeyring extends EventEmitter{
     this.deserialize(opts || SEEDS)
   }
 
-  serialize(){
-    return Promise.resolve(this.accounts.map(acc => acc.seedPhrase))
+  async serialize(){
+    const result = Object.keys(this.accounts).map(key => this.accounts[key].phrase)
+    return result
   }
 
-  deserialize(seeds = []){
+  async deserialize(seeds = []){
     this.accounts = seeds.map(seed => this.Waves.Seed.fromExistingPhrase(seed))
       .reduce((prev, next) => {
         prev[next.address] = next
@@ -63,3 +63,5 @@ module.exports = class WavesSimpleKeyring extends EventEmitter{
     return wallet
   }
 }
+WavesSimpleKeyring.type = type
+module.exports = WavesSimpleKeyring
