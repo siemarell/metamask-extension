@@ -117,7 +117,7 @@ WalletView.prototype.render = function () {
   const keyring = keyrings.find((kr) => {
     return kr.accounts.includes(selectedAddress)
   })
-  debugger
+
   const type = keyring.type
   const isLoose = type !== 'HD Key Tree'
 
