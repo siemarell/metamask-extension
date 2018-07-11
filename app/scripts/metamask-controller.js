@@ -144,7 +144,7 @@ module.exports = class MetamaskController extends EventEmitter {
       }
       //filter addresses from ethereum keyrings
       const eth_addresses = state.keyrings.reduce((res, keyring) => {
-        if (['Simple Key Pair', 'HD Key Tree'].indexOf(keyring.type)){
+        if (['Simple Key Pair', 'HD Key Tree'].indexOf(keyring.type) > -1){
           return res.concat(keyring.accounts)
         }
         else return res
