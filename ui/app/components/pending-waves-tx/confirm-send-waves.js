@@ -56,14 +56,14 @@ function mapStateToProps (state) {
   } = state.metamask
   const accounts = state.metamask.accounts
   const selectedAddress = state.metamask.selectedAddress || Object.keys(accounts)[0]
-  const { balance } = accounts[selectedAddress]
+  //const { balance } = accounts[selectedAddress]
   return {
     conversionRate,
     identities,
     selectedAddress,
     currentCurrency,
     send,
-    balance,
+   // balance,
   }
 }
 
