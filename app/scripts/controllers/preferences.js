@@ -88,22 +88,6 @@ class PreferencesController {
   }
 
   /**
-   * Updates waves identities to only include specified addresses. Removes identities
-   * not included in addresses array
-   *
-   * @param {string[]} addresses An array of hex addresses
-   *
-   */
-  setWavesAddresses (addresses) {
-    const oldIdentities = this.store.getState().wavesIdentities
-    const wavesIdentities = addresses.reduce((ids, address, index) => {
-      const oldId = oldIdentities[address] || {}
-      ids[address] = {name: `Account ${index + 1}`, address, ...oldId}
-      return ids
-    }, {})
-    this.store.updateState({ wavesIdentities })
-  }
-  /**
    * Adds addresses to the identities object without removing identities
    *
    * @param {string[]} addresses An array of hex addresses
@@ -174,7 +158,7 @@ class PreferencesController {
    */
   setSelectedAddress (_address) {
     return new Promise((resolve, reject) => {
-      const address = normalizeAddress(_address)
+      const address = _address//normalizeAddress(_address)
       this.store.updateState({ selectedAddress: address })
       resolve()
     })

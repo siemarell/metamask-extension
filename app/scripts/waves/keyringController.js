@@ -427,7 +427,7 @@ class KeyringController extends EventEmitter {
           return res.concat(arr)
         }, [])
       })
-    return addrs.map(normalizeAddress)
+    return addrs//addrs.map(normalizeAddress)
   }
 
   // Get Keyring For Account
@@ -438,8 +438,8 @@ class KeyringController extends EventEmitter {
   // Returns the currently initialized keyring that manages
   // the specified `address` if one exists.
   getKeyringForAccount (address) {
-    const hexed = normalizeAddress(address)
-    log.debug(`KeyringController - getKeyringForAccount: ${hexed}`)
+    //const hexed = normalizeAddress(address)
+    //log.debug(`KeyringController - getKeyringForAccount: ${hexed}`)
 
     return Promise.all(this.keyrings.map((keyring) => {
       return Promise.all([
@@ -471,7 +471,7 @@ class KeyringController extends EventEmitter {
       .then((accounts) => {
         return {
           type: keyring.type,
-          accounts: accounts.map(normalizeAddress),
+          accounts: accounts//accounts.map(normalizeAddress),
         }
       })
   }

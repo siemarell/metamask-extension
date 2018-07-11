@@ -142,9 +142,16 @@ module.exports = class MetamaskController extends EventEmitter {
         const address = addresses[0]
         this.preferencesController.setSelectedAddress(address)
       }
+      //filter addresses from ethereum keyrings
+      const eth_addresses = state.keyrings.reduce((res, keyring) => {
+        if (['Simple Key Pair', 'HD Key Tree'].indexOf(keyring.type)){
+          return res.concat(keyring.accounts)
+        }
+        else return res
+      }, [])
       // ensure preferences + identities controller know about all addresses
       this.preferencesController.addAddresses(addresses)
-      this.accountTracker.syncWithAddresses(addresses)
+      this.accountTracker.syncWithAddresses(eth_addresses)
     })
 
     // address book controller
@@ -192,8 +199,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // waves
     this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
     this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
-    //this.preferencesController.setWavesAddresses(this.wavesTxController.keyring.getAccounts())
-    //Todo: selected address. Subscribe addresses change
+
 
     this.networkController.lookupNetwork()
     this.messageManager = new MessageManager()
