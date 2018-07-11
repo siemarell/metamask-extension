@@ -79,11 +79,14 @@ class PreferencesController {
    */
   setAddresses (addresses) {
     const oldIdentities = this.store.getState().identities
-    const identities = addresses.reduce((ids, address, index) => {
-      const oldId = oldIdentities[address] || {}
-      ids[address] = {name: `Account ${index + 1}`, address, ...oldId}
-      return ids
-    }, {})
+    Object.entries(addresses).reduce((prev,[key, val])=>{
+      prev[key] = val.reduce((ids, address,index)=>{
+        const oldId = (oldIdentities[key] && oldIdentities[key][address]) || {}
+        ids[address] = {name: `${key} Account ${index + 1}`, address, ...oldId}
+        return ids
+      },{})
+      return prev
+    },{})
     this.store.updateState({ identities })
   }
 
