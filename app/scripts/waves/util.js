@@ -1,3 +1,5 @@
+const R = require('ramda')
+
 export function transformMethods(transformation, obj, target={}){
   Object.keys(obj).forEach(key=>{
     if (typeof obj[key] === 'object'){

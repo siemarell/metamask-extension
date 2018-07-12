@@ -74,12 +74,12 @@ class PreferencesController {
    * Updates identities to only include specified addresses. Removes identities
    * not included in addresses array
    *
-   * @param {string[]} addresses An array of hex addresses
+   * @param {object} addresses: map chain -> array of addresses
    *
    */
   setAddresses (addresses) {
     const oldIdentities = this.store.getState().identities
-    Object.entries(addresses).reduce((prev,[key, val])=>{
+    const identities = Object.entries(addresses).reduce((prev,[key, val])=>{
       prev[key] = val.reduce((ids, address,index)=>{
         const oldId = (oldIdentities[key] && oldIdentities[key][address]) || {}
         ids[address] = {name: `${key} Account ${index + 1}`, address, ...oldId}
@@ -93,18 +93,13 @@ class PreferencesController {
   /**
    * Adds addresses to the identities object without removing identities
    *
-   * @param {string[]} addresses An array of hex addresses
+   * @param {object} addresses: map chain -> array of addresses
    *
    */
   addAddresses (addresses) {
-    const identities = this.store.getState().identities
-    addresses.forEach((address) => {
-      // skip if already exists
-      if (identities[address]) return
-      // add missing identity
-      const identityCount = Object.keys(identities).length
-      identities[address] = { name: `Account ${identityCount + 1}`, address }
-    })
+    const newIdentities = this._addressesToIdentities(addresses)
+    const oldIdentities = this.store.getState().identities
+    const identities = R.mergeDeepRight(newIdentities, oldIdentities)
     this.store.updateState({ identities })
   }
 
@@ -118,34 +113,13 @@ class PreferencesController {
   syncAddresses (addresses) {
     let { identities, lostIdentities } = this.store.getState()
 
-    let newlyLost = {}
-    Object.keys(identities).forEach((identity) => {
-      if (!addresses.includes(identity)) {
-        newlyLost[identity] = identities[identity]
-        delete identities[identity]
-      }
-    })
+    this.setAddresses(addresses)
 
-    // Identities are no longer present.
-    if (Object.keys(newlyLost).length > 0) {
-
-      // Notify our servers:
-      if (this.diagnostics) this.diagnostics.reportOrphans(newlyLost)
-
-      // store lost accounts
-      for (let key in newlyLost) {
-        lostIdentities[key] = newlyLost[key]
-      }
-    }
-
-    this.store.updateState({ identities, lostIdentities })
-    this.addAddresses(addresses)
-
-    // If the selected account is no longer valid,
-    // select an arbitrary other account:
     let selected = this.getSelectedAddress()
-    if (!addresses.includes(selected)) {
-      selected = addresses[0]
+
+    const addressesList = Object.keys(identities).map(key => identities[key]).reduce([].concat.call,[])
+    if (!addressesList.includes(selected)) {
+      selected = addressesList[0]
       this.setSelectedAddress(selected)
     }
 
@@ -253,7 +227,7 @@ class PreferencesController {
    */
   setAccountLabel (account, label) {
     if (!account) throw new Error('setAccountLabel requires a valid address, got ' + String(account))
-    const address = normalizeAddress(account)
+    //const address = normalizeAddress(account)
     const {identities} = this.store.getState()
     identities[address] = identities[address] || {}
     identities[address].name = label
@@ -357,6 +331,19 @@ class PreferencesController {
   //
   // PRIVATE METHODS
   //
+
+  /**
+   *
+   * @param {object} addresses object from keychain
+   * @private
+   * @returns {object} Addresses as nested object with default names
+   */
+  _addressesToIdentities(addresses){
+    return R.mapObjIndexed((addrArr, key) => addrArr.reduce((ids, address, index)=>{
+      ids[address] = {name: `${key} Account ${index + 1}`, address}
+      return ids
+    } ,{}) , addresses)
+  }
 }
 
 module.exports = PreferencesController
