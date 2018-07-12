@@ -38,8 +38,7 @@ class AccountDropdowns extends Component {
       const simpleAddress = identity.address.substring(2).toLowerCase()
 
       const keyring = keyrings.find((kr) => {
-        return kr.accounts[type].includes(simpleAddress) ||
-          kr.accounts[type].includes(identity.address)
+        return kr[type] && (kr.accounts[type].includes(simpleAddress) || kr.accounts[type].includes(identity.address))
       })
 
       return h(
