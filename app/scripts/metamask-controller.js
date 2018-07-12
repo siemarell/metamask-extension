@@ -256,8 +256,7 @@ module.exports = class MetamaskController extends EventEmitter {
       getAccounts: (cb) => {
         const isUnlocked = this.keyringController.memStore.getState().isUnlocked
         const result = []
-        const selectedAddress = this.preferencesController.getSelectedAddress()
-
+        const selectedAddress = this.preferencesController.getSelectedAddresses().eth
         // only show address if account is unlocked
         if (isUnlocked && selectedAddress) {
           result.push(selectedAddress)
@@ -521,9 +520,17 @@ module.exports = class MetamaskController extends EventEmitter {
    * Sets the first address in the state to the selected address
    */
   selectFirstIdentity () {
-    const { identities:{eth} } = this.preferencesController.store.getState()
-    const address = Object.keys(eth)[0]
+    const { identities}  = this.preferencesController.store.getState()
+    const address = Object.keys(identities.eth)[0]
     this.preferencesController.setSelectedAddress(address)
+
+    //also update selectedAddresses
+    let selected = R.mapObjIndexed((addresses)=>{
+      return Object.keys(addresses)[0]
+    },identities)
+    const selectedChain = Object.keys(selected)[0]
+    selected.current = { type: selectedChain, address: selected[selectedChain]}
+    this.preferencesController.setSelectedAddresses(selected)
   }
 
   //

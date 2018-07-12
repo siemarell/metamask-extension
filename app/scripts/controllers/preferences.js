@@ -139,6 +139,26 @@ class PreferencesController {
   }
 
   /**
+   * Setter for the `selectedAddresses` property
+   *
+   * @param {Object} selected Object representing selected addresses
+   * @returns {Promise<void>} Promise resolves with undefined
+   *
+   */
+  setSelectedAddresses (selected) {
+    return new Promise((resolve, reject) => {
+      const oldState = this.store.getState().selectedAddresses
+      const newState = Object.assign({}, oldState, selected)
+      // if only current is passed update chain record
+      if (selected.current){
+        newState[selected.current.type] = selected.current.address
+      }
+      this.store.updateState({ selectedAddresses: newState })
+      resolve()
+    })
+  }
+
+  /**
    * Getter for the `selectedAddress` property
    *
    * @returns {string} The hex address for the currently selected account
@@ -148,6 +168,15 @@ class PreferencesController {
     return this.store.getState().selectedAddress
   }
 
+  /**
+   * Getter for the `selectedAddresses` property
+   *
+   * @returns {Object} Selected addresses of all blockchains
+   *
+   */
+  getSelectedAddresses () {
+    return this.store.getState().selectedAddresses
+  }
   /**
    * Contains data about tokens users add to their account.
    * @typedef {Object} AddedToken
