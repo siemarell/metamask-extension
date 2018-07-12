@@ -50,6 +50,7 @@ const {cbToPromise, transformMethods} = require('./waves/util')
 //const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
 const {WavesTxController} = require('./waves/index')
 const log = require('loglevel')
+const R = require('ramda')
 
 module.exports = class MetamaskController extends EventEmitter {
 
@@ -135,20 +136,15 @@ module.exports = class MetamaskController extends EventEmitter {
 
     // If only one account exists, make sure it is selected.
     this.keyringController.memStore.subscribe((state) => {
-      const addresses = state.keyrings.reduce((res, keyring) => {
-        return res.concat(keyring.accounts)
-      }, [])
-      if (addresses.length === 1) {
-        const address = addresses[0]
+      const addresses = state.keyrings.reduce((prev,next)=>{
+        return R.mergeWith(R.concat, prev, next.accounts)
+      },{})
+      if (addresses.eth && addresses.eth.length === 1) {
+        const address = addresses.eth[0]
         this.preferencesController.setSelectedAddress(address)
       }
-      //filter addresses from ethereum keyrings
-      const eth_addresses = state.keyrings.reduce((res, keyring) => {
-        if (['Simple Key Pair', 'HD Key Tree'].indexOf(keyring.type) > -1){
-          return res.concat(keyring.accounts)
-        }
-        else return res
-      }, [])
+
+      const eth_addresses = addresses.eth || []
       // ensure preferences + identities controller know about all addresses
       this.preferencesController.addAddresses(addresses)
       this.accountTracker.syncWithAddresses(eth_addresses)
@@ -509,7 +505,6 @@ module.exports = class MetamaskController extends EventEmitter {
     if (nonSimpleKeyrings.length > 1 && this.diagnostics) {
       await this.diagnostics.reportMultipleKeyrings(nonSimpleKeyrings)
     }
-
     await this.preferencesController.syncAddresses(accounts)
     return this.keyringController.fullUpdate()
   }
@@ -602,7 +597,7 @@ module.exports = class MetamaskController extends EventEmitter {
     const serialized = await primaryKeyring.serialize()
     const seedWords = serialized.mnemonic
 
-    const accounts = await primaryKeyring.getAccounts()
+    const accounts = await primaryKeyring.getAccounts().eth
     if (accounts.length < 1) {
       throw new Error('MetamaskController - No accounts found')
     }

@@ -30,7 +30,9 @@ class WavesSimpleKeyring extends EventEmitter{
   }
 
   getAccounts(){
-    return Promise.resolve(Object.keys(this.accounts))
+    return Promise.resolve({
+      WAVES: Object.keys(this.accounts)
+    })
   }
 
   async signTransaction(withAccount, txData){

@@ -1,3 +1,4 @@
+const R = require('ramda')
 const Component = require('react').Component
 const PropTypes = require('prop-types')
 const h = require('react-hyperscript')
@@ -23,17 +24,22 @@ class AccountDropdowns extends Component {
 
   renderAccounts () {
     const { identities, selected, keyrings } = this.props
-    const accountOrder = keyrings.reduce((list, keyring) => list.concat(keyring.accounts), [])
 
-    return accountOrder.map((address, index) => {
-      const identity = identities[address]
+    const accountOrder = R.chain(keyring => {
+      return R.chain(([type, addresses]) => {
+        return addresses.map(address =>{ return {type, address}})
+      },Object.entries(keyring.accounts))
+    },keyrings)
+
+    return accountOrder.map(({address, type}, index) => {
+      const identity = identities[type][address]
       const isSelected = identity.address === selected
 
       const simpleAddress = identity.address.substring(2).toLowerCase()
 
       const keyring = keyrings.find((kr) => {
-        return kr.accounts.includes(simpleAddress) ||
-          kr.accounts.includes(identity.address)
+        return kr.accounts[type].includes(simpleAddress) ||
+          kr.accounts[type].includes(identity.address)
       })
 
       return h(

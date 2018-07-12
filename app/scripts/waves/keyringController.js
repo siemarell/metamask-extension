@@ -1,3 +1,4 @@
+const R = require('ramda')
 const log = require('loglevel')
 const ethUtil = require('ethereumjs-util')
 const BN = ethUtil.BN
@@ -13,11 +14,29 @@ const SimpleKeyring = require('eth-simple-keyring')
 const HdKeyring = require('eth-hd-keyring')
 const WavesSimpleKeyring = require('./wavesSimpleKeyring')
 const keyringTypes = [
-  SimpleKeyring,
-  HdKeyring,
+  markKeyringAccounts(SimpleKeyring, 'eth'),
+  markKeyringAccounts(HdKeyring, 'eth'),
   WavesSimpleKeyring
 ]
 
+function markKeyringAccounts(keyringClass, coinName) {
+  return new Proxy(keyringClass, {
+    construct: function(target, args){
+      let obj = new target(...args)
+
+      const oldmethod = obj.getAccounts.bind(obj)
+
+      obj.getAccounts = async () => {
+        const addresses = await oldmethod()
+        let result = {}
+        result[coinName] = addresses
+        return result
+      }
+
+      return obj
+    }
+  })
+}
 class KeyringController extends EventEmitter {
 
   // PUBLIC METHODS
@@ -421,14 +440,13 @@ class KeyringController extends EventEmitter {
   // managed by all currently unlocked keyrings.
   async getAccounts () {
     const keyrings = this.keyrings || []
-    const addrs = await Promise.all(keyrings.map(kr => kr.getAccounts()))
-      .then((keyringArrays) => {
-        return keyringArrays.reduce((res, arr) => {
-          return res.concat(arr)
-        }, [])
-      })
-    return addrs//addrs.map(normalizeAddress)
+    const keyringsAccounts = await Promise.all(keyrings.map(kr => kr.getAccounts()))
+    const result = keyringsAccounts.reduce((prev,next)=>{
+      return R.mergeWithKey((k, l, r) =>  R.concat(l, r), prev, next)
+    },{})
+    return result
   }
+
 
   // Get Keyring For Account
   // @string address
@@ -449,7 +467,7 @@ class KeyringController extends EventEmitter {
     }))
       .then(filter((candidate) => {
         const accounts = candidate[1].map(normalizeAddress)
-        return accounts.includes(hexed)
+        return accounts.includes(address)
       }))
       .then((winners) => {
         if (winners && winners.length > 0) {
@@ -469,10 +487,14 @@ class KeyringController extends EventEmitter {
   displayForKeyring (keyring) {
     return keyring.getAccounts()
       .then((accounts) => {
-        return {
+        let result = {
           type: keyring.type,
-          accounts: accounts//accounts.map(normalizeAddress),
+          accounts: accounts
         }
+        if (result.eth){
+          result.eth = result.eth.map(normalizeAddress)
+        }
+        return result
       })
   }
 

@@ -1,7 +1,7 @@
 const ObservableStore = require('obs-store')
 const normalizeAddress = require('eth-sig-util').normalize
 const extend = require('xtend')
-
+const R = require('ramda')
 
 class PreferencesController {
 
@@ -30,8 +30,6 @@ class PreferencesController {
       currentLocale: opts.initLangCode,
       identities: {},
       lostIdentities: {},
-      wavesIdentities: {},
-      wavesTokens: []
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
@@ -112,12 +110,11 @@ class PreferencesController {
    */
   syncAddresses (addresses) {
     let { identities, lostIdentities } = this.store.getState()
-
     this.setAddresses(addresses)
 
     let selected = this.getSelectedAddress()
+    const addressesList = R.chain(([_,chain]) => Object.keys(chain), Object.entries(identities))
 
-    const addressesList = Object.keys(identities).map(key => identities[key]).reduce([].concat.call,[])
     if (!addressesList.includes(selected)) {
       selected = addressesList[0]
       this.setSelectedAddress(selected)
@@ -339,10 +336,12 @@ class PreferencesController {
    * @returns {object} Addresses as nested object with default names
    */
   _addressesToIdentities(addresses){
-    return R.mapObjIndexed((addrArr, key) => addrArr.reduce((ids, address, index)=>{
-      ids[address] = {name: `${key} Account ${index + 1}`, address}
-      return ids
-    } ,{}) , addresses)
+    return R.mapObjIndexed((addrArr, key) => {
+      return addrArr.reduce((ids, address, index)=>{
+        ids[address] = {name: `${key} Account ${index + 1}`, address}
+        return ids
+      } ,{})
+    } , addresses)
   }
 }
 
