@@ -548,10 +548,14 @@ module.exports = class MetamaskController extends EventEmitter {
     await this.verifySeedPhrase()
 
     this.preferencesController.setAddresses(newAccounts)
-    newAccounts.forEach((address) => {
-      if (!oldAccounts.includes(address)) {
-        this.preferencesController.setSelectedAddress(address)
-      }
+
+    Object.entries(newAccounts).forEach(([chain, addresses]) => {
+      addresses.forEach(address => {
+        console.log(chain, address)
+        if (R.pathEq([chain,address],oldAccounts)) {
+          this.preferencesController.setSelectedAddress(address)
+        }
+      })
     })
 
     const {identities} = this.preferencesController.store.getState()
@@ -596,8 +600,8 @@ module.exports = class MetamaskController extends EventEmitter {
 
     const serialized = await primaryKeyring.serialize()
     const seedWords = serialized.mnemonic
+    const accounts = (await primaryKeyring.getAccounts()).eth
 
-    const accounts = await primaryKeyring.getAccounts().eth
     if (accounts.length < 1) {
       throw new Error('MetamaskController - No accounts found')
     }
