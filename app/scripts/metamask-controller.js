@@ -258,9 +258,9 @@ module.exports = class MetamaskController extends EventEmitter {
         const result = []
         const selectedAddress = this.preferencesController.getSelectedAddresses().eth
         // only show address if account is unlocked
-        if (isUnlocked && selectedAddress) {
-          result.push(selectedAddress)
-        }
+        // if (isUnlocked && selectedAddress) {
+        //   result.push(selectedAddress)
+        // }
         cb(null, result)
       },
       // tx signing
@@ -293,6 +293,7 @@ module.exports = class MetamaskController extends EventEmitter {
       const result = {
         selectedAddress: memState.isUnlocked ? memState.selectedAddress : undefined,
         networkVersion: memState.network,
+        selectedAddresses: memState.isUnlocked ? memState.selectedAddresses : undefined
       }
       return result
     }
