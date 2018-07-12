@@ -225,12 +225,12 @@ class PreferencesController {
    * @param {string} label the custom label for the account
    * @return {Promise<string>}
    */
-  setAccountLabel (account, label) {
+  setAccountLabel (account, label, chain) {
     if (!account) throw new Error('setAccountLabel requires a valid address, got ' + String(account))
     //const address = normalizeAddress(account)
     const {identities} = this.store.getState()
-    identities[address] = identities[address] || {}
-    identities[address].name = label
+    identities[chain][address] = identities[chain][address] || {}
+    identities[chain][address].name = label
     this.store.updateState({ identities })
     return Promise.resolve(label)
   }
