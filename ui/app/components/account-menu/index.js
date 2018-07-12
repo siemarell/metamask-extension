@@ -1,3 +1,4 @@
+const R = require('ramda')
 const inherits = require('util').inherits
 const Component = require('react').Component
 const connect = require('react-redux').connect
@@ -135,9 +136,14 @@ AccountMenu.prototype.renderAccounts = function () {
     showAccountDetail,
   } = this.props
 
-  const accountOrder = keyrings.reduce((list, keyring) => list.concat(keyring.accounts), [])
-  return accountOrder.map((address) => {
-    const identity = identities[address]
+  const accountOrder = R.chain(keyring => {
+    return R.chain(([type, addresses]) => {
+      return addresses.map(address =>{ return {type, address}})
+    },Object.entries(keyring.accounts))
+  },keyrings)
+
+  return accountOrder.map(({address, type}) => {
+    const identity = identities[type][address]
     const isSelected = identity.address === selectedAddress
 
     const balanceValue = accounts[address] ? accounts[address].balance : ''
@@ -145,8 +151,7 @@ AccountMenu.prototype.renderAccounts = function () {
     const simpleAddress = identity.address.substring(2).toLowerCase()
 
     const keyring = keyrings.find((kr) => {
-      return kr.accounts.includes(simpleAddress) ||
-        kr.accounts.includes(identity.address)
+      return kr[type] && (kr.accounts[type].includes(simpleAddress) || kr.accounts[type].includes(identity.address))
     })
 
     return h(

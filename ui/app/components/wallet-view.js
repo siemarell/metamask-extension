@@ -1,3 +1,4 @@
+const R = require('ramda')
 const Component = require('react').Component
 const PropTypes = require('prop-types')
 const connect = require('react-redux').connect
