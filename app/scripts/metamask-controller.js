@@ -521,8 +521,8 @@ module.exports = class MetamaskController extends EventEmitter {
    * Sets the first address in the state to the selected address
    */
   selectFirstIdentity () {
-    const { identities } = this.preferencesController.store.getState()
-    const address = Object.keys(identities)[0]
+    const { identities:{eth} } = this.preferencesController.store.getState()
+    const address = Object.keys(eth)[0]
     this.preferencesController.setSelectedAddress(address)
   }
 

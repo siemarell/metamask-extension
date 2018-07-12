@@ -125,7 +125,7 @@ class KeyringController extends EventEmitter {
         return firstKeyring.getAccounts()
       })
       .then((accounts) => {
-        const firstAccount = accounts[0]
+        const firstAccount = accounts.eth && accounts.eth[0]
         if (!firstAccount) throw new Error('KeyringController - First Account not found.')
         return null
       })
