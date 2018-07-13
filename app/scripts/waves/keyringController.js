@@ -448,8 +448,8 @@ class KeyringController extends EventEmitter {
       ])
     }))
       .then(filter((candidate) => {
-        const accounts = candidate[1].map(normalizeAddress)
-        return accounts.includes(hexed)
+        const accounts = candidate[1]//.map(normalizeAddress)
+        return accounts.includes(address)
       }))
       .then((winners) => {
         if (winners && winners.length > 0) {
