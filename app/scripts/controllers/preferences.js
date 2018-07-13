@@ -29,9 +29,7 @@ class PreferencesController {
       featureFlags: {},
       currentLocale: opts.initLangCode,
       identities: {},
-      lostIdentities: {},
-      wavesIdentities: {},
-      wavesTokens: []
+      lostIdentities: {}
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
