@@ -27,7 +27,7 @@ var inpageProvider = new MetamaskInpageProvider(metamaskStream)
 
 //setup waves api lib
 const wavesStream = inpageProvider.mux.createStream('waves')
-const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
+const WavesApi = require('@waves/waves-api')
 const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG);
 //var eventEmitter = new EventEmitter()
 const wavesNodeApiDnode = Dnode({

@@ -1,6 +1,6 @@
 const log = require('loglevel')
 const ObservableStore = require('obs-store')
-const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
+const WavesApi = require('@waves/waves-api')
 const EventEmitter = require('events').EventEmitter
 const type = 'Waves Simple Keyring'
 

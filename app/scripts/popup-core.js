@@ -7,7 +7,7 @@ const launchMetamaskUi = require('../../ui')
 const StreamProvider = require('web3-stream-provider')
 const setupMultiplex = require('./lib/stream-utils.js').setupMultiplex
 const {cbToPromise, transformMethods} = require("./waves/util")
-const WavesApi = require('@waves/waves-api/raw/src/WavesAPI.js')
+const WavesApi = require('@waves/waves-api')
 const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
 
 
