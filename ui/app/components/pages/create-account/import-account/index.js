@@ -8,7 +8,7 @@ import Select from 'react-select'
 // Subviews
 const JsonImportView = require('./json.js')
 const PrivateKeyImportView = require('./private-key.js')
-
+const WavesImportView =  require('./waves-seed.js')
 
 AccountImportSubview.contextTypes = {
   t: PropTypes.func,
@@ -26,6 +26,7 @@ AccountImportSubview.prototype.getMenuItemTexts = function () {
   return [
     this.context.t('privateKey'),
     this.context.t('jsonFile'),
+    'Waves Seed'
   ]
 }
 
@@ -90,6 +91,8 @@ AccountImportSubview.prototype.renderImportView = function () {
       return h(PrivateKeyImportView)
     case this.context.t('jsonFile'):
       return h(JsonImportView)
+    case 'Waves Seed':
+      return h(WavesImportView)
     default:
       return h(JsonImportView)
   }

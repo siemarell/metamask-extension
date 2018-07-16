@@ -654,7 +654,13 @@ module.exports = class MetamaskController extends EventEmitter {
    */
   async importAccountWithStrategy (strategy, args) {
     const privateKey = await accountImporter.importAccount(strategy, args)
-    const keyring = await this.keyringController.addNewKeyring('Simple Key Pair', [ privateKey ])
+    let keyring;
+    if (strategy === 'Waves Seed'){
+      keyring = await this.keyringController.addNewKeyring('Waves Simple Keyring', [ privateKey ])
+    }else{
+      keyring = await this.keyringController.addNewKeyring('Simple Key Pair', [ privateKey ])
+    }
+
     const accounts = await keyring.getAccounts()
     // update accounts in preferences controller
     const allAccounts = await this.keyringController.getAccounts()

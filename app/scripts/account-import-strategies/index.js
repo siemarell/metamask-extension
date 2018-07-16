@@ -44,6 +44,12 @@ const accountImporter = {
 
       return walletToPrivateKey(wallet)
     },
+    'Waves Seed': (seed) => {
+      if (!seed) {
+        throw new Error('Cannot import an empty seed.')
+      }
+      return seed
+    }
   },
 
 }
