@@ -2,18 +2,19 @@ const log = require('loglevel')
 const ObservableStore = require('obs-store')
 const WavesApi = require('@waves/waves-api')
 const EventEmitter = require('events').EventEmitter
+const {Address} = require('./util')
 const type = 'Waves Simple Keyring'
 
 class WavesSimpleKeyring extends EventEmitter{
   constructor(opts){
     super()
     this.type = type
-    const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
-      'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
+    // const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
+    //   'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
 
     this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
 
-    this.deserialize(opts || SEEDS)
+    this.deserialize(opts)// || SEEDS)
   }
 
   async serialize(){
@@ -29,8 +30,8 @@ class WavesSimpleKeyring extends EventEmitter{
       }, {})
   }
 
-  getAccounts(){
-    return Promise.resolve(Object.keys(this.accounts))
+  async getAccounts(){
+    return Object.keys(this.accounts).map(address=> Address(address, "WAVES"))
   }
 
   async signTransaction(withAccount, txData){

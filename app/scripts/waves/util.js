@@ -26,3 +26,11 @@ export function cbToPromise(fn, context){
     })
   }
 }
+
+export function Address(addr, chain){
+  let s = new String(addr);
+
+  s.chain = chain
+
+  return s;
+}

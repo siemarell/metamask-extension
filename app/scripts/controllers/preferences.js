@@ -79,7 +79,8 @@ class PreferencesController {
     const oldIdentities = this.store.getState().identities
     const identities = addresses.reduce((ids, address, index) => {
       const oldId = oldIdentities[address] || {}
-      ids[address] = {name: `Account ${index + 1}`, address, ...oldId}
+      const chain = address.chain || 'ETH'
+      ids[address] = {name: `Account ${index + 1}`, address: address.toString(), chain, ...oldId}
       return ids
     }, {})
     this.store.updateState({ identities })
@@ -98,7 +99,8 @@ class PreferencesController {
       if (identities[address]) return
       // add missing identity
       const identityCount = Object.keys(identities).length
-      identities[address] = { name: `Account ${identityCount + 1}`, address }
+      const chain = address.chain || 'ETH'
+      identities[address] = { name: `Account ${identityCount + 1}`, address: address.toString(), chain }
     })
     this.store.updateState({ identities })
   }
@@ -111,39 +113,45 @@ class PreferencesController {
    * @returns {Promise<string>} selectedAddress the selected address.
    */
   syncAddresses (addresses) {
-    let { identities, lostIdentities } = this.store.getState()
-
-    let newlyLost = {}
-    Object.keys(identities).forEach((identity) => {
-      if (!addresses.includes(identity)) {
-        newlyLost[identity] = identities[identity]
-        delete identities[identity]
-      }
-    })
-
-    // Identities are no longer present.
-    if (Object.keys(newlyLost).length > 0) {
-
-      // Notify our servers:
-      if (this.diagnostics) this.diagnostics.reportOrphans(newlyLost)
-
-      // store lost accounts
-      for (let key in newlyLost) {
-        lostIdentities[key] = newlyLost[key]
-      }
-    }
-
-    this.store.updateState({ identities, lostIdentities })
-    this.addAddresses(addresses)
-
-    // If the selected account is no longer valid,
-    // select an arbitrary other account:
+    // let { identities, lostIdentities } = this.store.getState()
+    //
+    // let newlyLost = {}
+    // Object.keys(identities).forEach((identity) => {
+    //   if (!addresses.includes(identity)) {
+    //     newlyLost[identity] = identities[identity]
+    //     delete identities[identity]
+    //   }
+    // })
+    //
+    // // Identities are no longer present.
+    // if (Object.keys(newlyLost).length > 0) {
+    //
+    //   // Notify our servers:
+    //   if (this.diagnostics) this.diagnostics.reportOrphans(newlyLost)
+    //
+    //   // store lost accounts
+    //   for (let key in newlyLost) {
+    //     lostIdentities[key] = newlyLost[key]
+    //   }
+    // }
+    //
+    // this.store.updateState({ identities, lostIdentities })
+    // this.addAddresses(addresses)
+    //
+    // // If the selected account is no longer valid,
+    // // select an arbitrary other account:
+    // let selected = this.getSelectedAddress()
+    // if (!addresses.includes(selected)) {
+    //   selected = addresses[0]
+    //   this.setSelectedAddress(selected)
+    // }
+    this.setAddresses(addresses)
+    const available = addresses.map(x => x.toString())
     let selected = this.getSelectedAddress()
-    if (!addresses.includes(selected)) {
+    if (!available.includes(selected.toString())) {
       selected = addresses[0]
       this.setSelectedAddress(selected)
     }
-
     return selected
   }
 
@@ -248,7 +256,7 @@ class PreferencesController {
    */
   setAccountLabel (account, label) {
     if (!account) throw new Error('setAccountLabel requires a valid address, got ' + String(account))
-    const address = normalizeAddress(account)
+    const address = account//normalizeAddress(account)
     const {identities} = this.store.getState()
     identities[address] = identities[address] || {}
     identities[address].name = label
