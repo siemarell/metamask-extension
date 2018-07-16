@@ -35,15 +35,17 @@ class WavesSimpleKeyring extends EventEmitter{
   }
 
   async signTransaction(withAccount, txData){
-    const privateKey = this.accounts[withAccount].keyPair.privateKey
+    const wallet = this._getWalletForAccount(withAccount)
+    Object.assign(txData, {senderPublicKey: wallet.keyPair.publicKey})
+
     const transfer = await this.Waves.tools.createTransaction(txData.type, txData)
-    transfer.addProof(privateKey)
+    transfer.addProof(wallet.keyPair.privateKey)
     return await transfer.getJSON()
   }
 
   async signMessage(withAccount, bytes){
-    const privateKey = this.accounts[withAccount].keyPair.privateKey
-    const signature =  this.Waves.crypto.buildTransactionSignature(bytes, privateKey)
+    const wallet = this._getWalletForAccount(withAccount)
+    const signature =  this.Waves.crypto.buildTransactionSignature(bytes, wallet.keyPair.privateKey)
     return signature
   }
 
@@ -60,7 +62,7 @@ class WavesSimpleKeyring extends EventEmitter{
 
   _getWalletForAccount (address) {
     let wallet = this.accounts[address]
-    if (!wallet) throw new Error('Waves Simple Keyring - Unable to find matching address.')
+    if (!wallet) throw new Error(`Waves Simple Keyring - Unable to find matching address ${address}`)
     return wallet
   }
 }

@@ -47,7 +47,7 @@ const percentile = require('percentile')
 const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./waves/util')
-//const Waves = require('./controllers/wavesNetwork/wavesPatchedApi')
+const {Waves} = require('./waves/provider')
 const {WavesTxController} = require('./waves/index')
 const log = require('loglevel')
 
@@ -196,10 +196,24 @@ module.exports = class MetamaskController extends EventEmitter {
       initState: initState.ShapeShiftController,
     })
 
-    // waves
-    this.wavesTxController = new WavesTxController({initState: initState.WavesNetworkController})
+    // WAVES
+    this.Waves = Waves
+    // Create waves tx controller
+    this.wavesTxController = new WavesTxController({
+      initState: initState.WavesNetworkController,
+      preferencesStore: this.preferencesController.store,
+      signTransaction: this.keyringController.signTransaction.bind(this.keyringController),
+      Waves: Waves
+    })
     this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
-
+    // setup waves patched object api
+    this.Waves.API.Node.addresses.get = async () => {
+      const allAccounts = await this.keyringController.getAccounts.call(this.keyringController)
+      return allAccounts.filter(acc => acc.chain === 'WAVES')
+    }
+    this.Waves.API.Node.addresses.signText = this.keyringController.signMessage.bind(this.keyringController)
+    this.Waves.API.Node.assets.transfer = this.wavesTxController.transfer.bind(this.wavesTxController)
+    ////////////////////////////////////////
 
     this.networkController.lookupNetwork()
     this.messageManager = new MessageManager()
@@ -345,7 +359,7 @@ module.exports = class MetamaskController extends EventEmitter {
     const noticeController = this.noticeController
     const addressBookController = this.addressBookController
     const networkController = this.networkController
-    const wavesController = this.wavesTxController
+    const wavesTxController = this.wavesTxController
 
     return {
       // etc
@@ -421,8 +435,8 @@ module.exports = class MetamaskController extends EventEmitter {
       markNoticeRead: noticeController.markNoticeRead.bind(noticeController),
 
       // waves
-      wavesApproveTransaction: nodeify(wavesController.updateAndApproveTransaction, wavesController),
-      wavesCancelTransaction: nodeify(wavesController.cancelTransaction, wavesController),
+      wavesApproveTransaction: nodeify(wavesTxController.updateAndApproveTransaction, wavesTxController),
+      wavesCancelTransaction: nodeify(wavesTxController.cancelTransaction, wavesTxController),
 
     }
   }
@@ -1097,8 +1111,8 @@ module.exports = class MetamaskController extends EventEmitter {
    */
   setupWavesConnection (outStream) {
     const dnode = Dnode({
-      Node: transformMethods(nodeify, this.wavesTxController.Waves.API.Node),
-      Matcher: transformMethods(nodeify,this.wavesTxController.Waves.API.Matcher)
+      Node: transformMethods(nodeify, this.Waves.API.Node),
+      Matcher: transformMethods(nodeify, this.Waves.API.Matcher)
     });
     pump(
       outStream,

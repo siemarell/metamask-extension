@@ -239,11 +239,11 @@ class KeyringController extends EventEmitter {
   // This method signs tx and returns a promise for
   // TX Manager to update the state after signing
 
-  signTransaction (ethTx, _fromAddress) {
-    const fromAddress = normalizeAddress(_fromAddress)
+  signTransaction (txData, _fromAddress) {
+    const fromAddress = _fromAddress//normalizeAddress(_fromAddress)
     return this.getKeyringForAccount(fromAddress)
       .then((keyring) => {
-        return keyring.signTransaction(fromAddress, ethTx)
+        return keyring.signTransaction(fromAddress, txData)
       })
   }
 
@@ -440,7 +440,6 @@ class KeyringController extends EventEmitter {
   getKeyringForAccount (address) {
     //const hexed = normalizeAddress(address)
     //log.debug(`KeyringController - getKeyringForAccount: ${hexed}`)
-
     return Promise.all(this.keyrings.map((keyring) => {
       return Promise.all([
         keyring,
@@ -448,7 +447,7 @@ class KeyringController extends EventEmitter {
       ])
     }))
       .then(filter((candidate) => {
-        const accounts = candidate[1]//.map(normalizeAddress)
+        const accounts = candidate[1].map(acc => acc.toString())//.map(normalizeAddress)
         return accounts.includes(address)
       }))
       .then((winners) => {

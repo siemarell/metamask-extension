@@ -1,9 +1,6 @@
 const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
 const log = require('loglevel')
-const WavesApi = require('@waves/waves-api')
-const createId = require('../lib/random-id')
-const WavesKeyring = require('./wavesSimpleKeyring')
 const TransactionStateManager = require('../controllers/transactions/tx-state-manager')
 const cleanErrorStack = require('../lib/cleanErrorStack')
 
@@ -13,6 +10,9 @@ module.exports = class WavesTxController extends EventEmitter {
     this.preferencesStore = opts.preferencesStore || new ObservableStore({})
     this.memStore = new ObservableStore({})
 
+    this.Waves = opts.Waves
+
+    this.signWavesTx = opts.signTransaction
     this._mapMethods()
     this.txStateManager = new TransactionStateManager({
       initState: opts.initState,
@@ -31,16 +31,6 @@ module.exports = class WavesTxController extends EventEmitter {
     this.txStateManager.store.subscribe(() => this._updateMemstore())
     //this.networkStore.subscribe(() => this._updateMemstore())
     this.preferencesStore.subscribe(() => this._updateMemstore())
-
-
-    //Setup Waves patched api
-    const Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
-    Waves.API.Node.addresses.get = this.getAddresses.bind(this)
-    Waves.API.Node.addresses.signText = this.signText.bind(this)
-    Waves.API.Node.assets.transfer = this.transfer.bind(this)
-    this.Waves = Waves
-    // Setup Keyring
-    this.keyring = new WavesKeyring()
 
   }
 
@@ -149,7 +139,7 @@ module.exports = class WavesTxController extends EventEmitter {
    */
   async signTransaction(txId){
     const txMeta = this.txStateManager.getTx(txId)
-    const signedTxParams = await this.keyring.signTransaction(txMeta.txParams.sender, txMeta.txParams)
+    const signedTxParams = await this.signWavesTx(txMeta.txParams, txMeta.txParams.sender)
     const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
     this.txStateManager.updateTx(newTxMeta, 'transactions#signTransaction')
     this.txStateManager.setTxStatusSigned(txMeta.id)
@@ -256,12 +246,12 @@ module.exports = class WavesTxController extends EventEmitter {
 
   transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
     //const seed = accounts[sender]
-    const senderPublicKey = this.keyring.publicKeyFromAddress(sender)
-    if (!senderPublicKey) return Promise.reject(new Error('No account found with this address'))
+    // const senderPublicKey = this.keyring.publicKeyFromAddress(sender)
+    // if (!senderPublicKey) return Promise.reject(new Error('No account found with this address'))
     const transferData = {
       //Sender
       sender: sender,
-      senderPublicKey: senderPublicKey,
+      // senderPublicKey: senderPublicKey,
       // An arbitrary address; mine, in this example
       recipient: recipient,
       // ID of a token, or WAVES
