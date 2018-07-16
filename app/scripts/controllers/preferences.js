@@ -166,8 +166,20 @@ class PreferencesController {
     return new Promise((resolve, reject) => {
       const address = _address//normalizeAddress(_address)
       this.store.updateState({ selectedAddress: address })
+      this._updateSelectedAddresses(address)
       resolve()
     })
+  }
+
+  _updateSelectedAddresses(address){
+    const {selectedAddresses, identities} = this.store.getState()
+    const identity = identities[address]
+    const defaultSelectedAddresses = Object.entries(identities).reduce((prev, [key, val])=> {
+      prev[val.chain] = key
+      return prev
+    },{})
+    const newSelectedAddresses = Object.assign(defaultSelectedAddresses, selectedAddresses,{[identity.chain]: identity.address})
+    this.store.updateState({selectedAddresses: newSelectedAddresses})
   }
 
   /**
