@@ -8,8 +8,8 @@ const testMode = (METAMASK_DEBUG || env === 'test')
 const WavesAPI = require('@waves/waves-api')
 
 const NETWORK = {
-  TESTNET: 'TESTNET',
-  MAINNET: 'MAINNET'
+  TESTNET: 'WAVES_TESTNET',
+  MAINNET: 'WAVES_MAINNET'
 }
 
 const PROVIDER = {
@@ -21,7 +21,7 @@ const PROVIDER = {
 const defaultProviderConfig = testMode ? PROVIDER.TESTNET : PROVIDER.MAINNET
 
 module.exports = class WavesNetworkController extends EventEmitter{
-  constructor(opts){
+  constructor(opts = {}){
     super()
     // parse options
     const providerConfig = opts.provider || defaultProviderConfig
