@@ -48,7 +48,7 @@ const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./waves/util')
 const {Waves} = require('./waves/provider')
-const {WavesTxController} = require('./waves/index')
+const {WavesTxController, WavesNetworkController} = require('./waves/index')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -197,22 +197,30 @@ module.exports = class MetamaskController extends EventEmitter {
     })
 
     // WAVES
-    this.Waves = Waves
+    //Create waves newtwork controller
+    this.wavesNetworkController = new WavesNetworkController(initState.WavesNetworkController)
+
     // Create waves tx controller
     this.wavesTxController = new WavesTxController({
-      initState: initState.WavesNetworkController,
+      initState: initState.WavesTxController,
+      networkStore: this.wavesNetworkController.networkStore,
       preferencesStore: this.preferencesController.store,
+      getNetwork: this.wavesNetworkController.getNetworkState.bind(this),
       signTransaction: this.keyringController.signTransaction.bind(this.keyringController),
-      Waves: Waves
+      Waves: this.wavesNetworkController.Waves
     })
-    this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
+
     // setup waves patched object api
+    this.Waves = this.wavesNetworkController.Waves
     this.Waves.API.Node.addresses.get = async () => {
       const allAccounts = await this.keyringController.getAccounts.call(this.keyringController)
       return allAccounts.filter(acc => acc.chain === 'WAVES')
     }
     this.Waves.API.Node.addresses.signText = this.keyringController.signMessage.bind(this.keyringController)
     this.Waves.API.Node.assets.transfer = this.wavesTxController.transfer.bind(this.wavesTxController)
+    this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
+
+
     ////////////////////////////////////////
 
     this.networkController.lookupNetwork()
@@ -231,7 +239,8 @@ module.exports = class MetamaskController extends EventEmitter {
       ShapeShiftController: this.shapeshiftController.store,
       NetworkController: this.networkController.store,
       InfuraController: this.infuraController.store,
-      WavesNetworkController: this.wavesTxController.store
+      WavesTxController: this.wavesTxController.store,
+      WavesNetworkController: this.wavesNetworkController.store
     })
 
     this.memStore = new ComposableObservableStore(null, {
@@ -252,6 +261,7 @@ module.exports = class MetamaskController extends EventEmitter {
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
       WavesTxController: this.wavesTxController.memStore,
+      WavesNetworkController: this.wavesNetworkController.store
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }

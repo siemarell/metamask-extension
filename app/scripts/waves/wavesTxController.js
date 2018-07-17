@@ -7,6 +7,7 @@ const cleanErrorStack = require('../lib/cleanErrorStack')
 module.exports = class WavesTxController extends EventEmitter {
   constructor(opts = {}) {
     super()
+    this.networkStore = opts.networkStore || new ObservableStore({})
     this.preferencesStore = opts.preferencesStore || new ObservableStore({})
     this.memStore = new ObservableStore({})
 
@@ -185,8 +186,7 @@ module.exports = class WavesTxController extends EventEmitter {
     /** @returns the state in transaction controller */
     this.getState = () => this.memStore.getState()
     /** @returns the network number stored in networkStore */
-    this.getNetwork = () => 'WAVES_TESTNET'
-    //this.getNetwork = () => this.networkStore.getState()
+    this.getNetwork = () => this.networkStore.getState()
     /** @returns the user selected address */
     this.getSelectedAddress = () => this.preferencesStore.getState().selectedAddress
     /** Returns an array of transactions whos status is unapproved */
