@@ -47,7 +47,6 @@ const percentile = require('percentile')
 const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./waves/util')
-const {Waves} = require('./waves/provider')
 const {WavesTxController, WavesNetworkController} = require('./waves/index')
 const log = require('loglevel')
 
@@ -213,7 +212,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // setup waves patched object api
     this.Waves = this.wavesNetworkController.Waves
     this.Waves.API.Node.addresses.get = async () => {
-      const allAccounts = await this.keyringController.getAccounts.call(this.keyringController)
+      const allAccounts = await this.keyringController.getAccounts()
       return allAccounts.filter(acc => acc.chain === 'WAVES')
     }
     this.Waves.API.Node.addresses.signText = this.keyringController.signMessage.bind(this.keyringController)
@@ -321,7 +320,9 @@ module.exports = class MetamaskController extends EventEmitter {
     function selectPublicState (memState) {
       const result = {
         selectedAddress: memState.isUnlocked ? memState.selectedAddress : undefined,
+        selectedAddresses: memState.isUnlocked ? memState.selectedAddresses : undefined,
         networkVersion: memState.network,
+        wavesNetworkVersion: memState.wavesNetwork
       }
       return result
     }
