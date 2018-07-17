@@ -28,7 +28,7 @@ module.exports = class WavesNetworkController extends EventEmitter{
     // create stores
     this.providerStore = new ObservableStore(providerConfig)
     this.networkStore = new ObservableStore('loading')
-    this.store = new ComposedStore({ provider: this.providerStore, network: this.networkStore })
+    this.store = new ComposedStore({ wavesProvider: this.providerStore, wavesNetwork: this.networkStore })
     // create event emitter proxy
     //this._proxy = createEventEmitterProxy()
 

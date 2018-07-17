@@ -220,7 +220,7 @@ module.exports = class MetamaskController extends EventEmitter {
     this.Waves.API.Node.assets.transfer = this.wavesTxController.transfer.bind(this.wavesTxController)
     this.wavesTxController.on('newUnapprovedTx', opts.showUnapprovedTx.bind(opts))
 
-
+    this.wavesNetworkController.lookupNetwork()
     ////////////////////////////////////////
 
     this.networkController.lookupNetwork()
