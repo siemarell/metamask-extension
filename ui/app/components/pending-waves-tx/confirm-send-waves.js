@@ -230,7 +230,7 @@ confirmSendWaves.prototype.render = function () {
             ]),
 
             h('div.confirm-screen-section-column', [
-              h('div.confirm-screen-row-info', `${(txParams.amount + txParams.fee)/100000000} ${txParams.assetId}`),
+              h('div.confirm-screen-row-info', `${(+txParams.amount + txParams.fee)/100000000} ${txParams.assetId}`),
               h('div.confirm-screen-row-detail', ``),
             ]),
 
