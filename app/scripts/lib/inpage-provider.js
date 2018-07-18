@@ -62,18 +62,21 @@ MetamaskInpageProvider.prototype.send = function (payload) {
   const self = this
 
   let selectedAddress
+  let allAddresses
   let result = null
   switch (payload.method) {
 
     case 'eth_accounts':
       // read from localStorage
-      selectedAddress = self.publicConfigStore.getState().selectedAddress
+      allAddresses = self.publicConfigStore.getState().selectedAddresses
+      selectedAddress = allAddresses && allAddresses.ETH
       result = selectedAddress ? [selectedAddress] : []
       break
 
     case 'eth_coinbase':
       // read from localStorage
-      selectedAddress = self.publicConfigStore.getState().selectedAddress
+      allAddresses = self.publicConfigStore.getState().selectedAddresses
+      selectedAddress = allAddresses && allAddresses.ETH
       result = selectedAddress || null
       break
 
