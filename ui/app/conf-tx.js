@@ -52,7 +52,6 @@ function mapStateToProps (state) {
     unapprovedTypedMessagesCount,
     send: state.metamask.send,
     selectedAddressTxList: state.metamask.selectedAddressTxList,
-    wavesUnapprovedTxs: state.metamask.wavesUnapprovedTxs
   }
 }
 
@@ -74,11 +73,10 @@ ConfirmTxScreen.prototype.getUnapprovedMessagesTotal = function () {
 ConfirmTxScreen.prototype.componentDidMount = function () {
   const {
     unapprovedTxs = {},
-    wavesUnapprovedTxs = {},
     network,
     send,
   } = this.props
-  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, wavesUnapprovedTxs, network)
+  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, network)
 
   if (unconfTxList.length === 0 && !send.to && this.getUnapprovedMessagesTotal() === 0) {
     this.props.history.push(DEFAULT_ROUTE)
@@ -92,7 +90,6 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
     selectedAddressTxList,
     send,
     history,
-    wavesUnapprovedTxs = {},
     match: { params: { id: transactionId } = {} },
   } = this.props
 
@@ -101,13 +98,13 @@ ConfirmTxScreen.prototype.componentDidUpdate = function (prevProps) {
   if (transactionId) {
     prevTx = R.find(({ id }) => id + '' === transactionId)(selectedAddressTxList)
   } else {
-    const { index: prevIndex, unapprovedTxs: prevUnapprovedTxs, wavesUnapprovedTxs: prevwavesUnapprovedTxs } = prevProps
-    const prevUnconfTxList = txHelper(prevUnapprovedTxs, {}, {}, {},prevwavesUnapprovedTxs,  network)
+    const { index: prevIndex, unapprovedTxs: prevUnapprovedTxs } = prevProps
+    const prevUnconfTxList = txHelper(prevUnapprovedTxs, {}, {}, {}, network)
     const prevTxData = prevUnconfTxList[prevIndex] || {}
     prevTx = selectedAddressTxList.find(({ id }) => id === prevTxData.id) || {}
   }
 
-  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, wavesUnapprovedTxs, network)
+  const unconfTxList = txHelper(unapprovedTxs, {}, {}, {}, network)
 
   if (prevTx.status === 'dropped') {
     this.props.dispatch(actions.showModal({
@@ -132,7 +129,6 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
     match: { params: { id: transactionId } = {} },
-    wavesUnapprovedTxs
   } = this.props
 
   const unconfTxList = txHelper(
@@ -140,9 +136,9 @@ ConfirmTxScreen.prototype.getTxData = function () {
     unapprovedMsgs,
     unapprovedPersonalMsgs,
     unapprovedTypedMessages,
-    wavesUnapprovedTxs,
     network
   )
+
   log.info(`rendering a combined ${unconfTxList.length} unconf msgs & txs`)
 
   return transactionId
@@ -207,7 +203,7 @@ function currentTxView (opts) {
   log.info('rendering current tx view')
   const { txData } = opts
   const { txParams, msgParams } = txData
-
+  debugger
   if (txData.metamaskNetworkId === 'WAVES_TESTNET') {
     log.debug('wavesTranser detected, rendering pending-waves tx')
     return h(PendingWavesTx, opts)

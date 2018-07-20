@@ -237,12 +237,12 @@ module.exports = class WavesTxController extends EventEmitter {
    Updates the memStore in transaction controller
    */
   _updateMemstore () {
-    const wavesUnapprovedTxs = this.txStateManager.getUnapprovedTxList()
-    const wavesSelectedAddressTxList = this.txStateManager.getFilteredTxList({
-      from: this.getSelectedAddress(),
+    const unapprovedTxs = this.txStateManager.getUnapprovedTxList()
+    const selectedAddressTxList = this.txStateManager.getFilteredTxList({
+      senderPublicKey: this.getSelectedAddress(),
       metamaskNetworkId: this.getNetwork(),
     })
-    this.memStore.updateState({ wavesUnapprovedTxs, wavesSelectedAddressTxList })
+    this.memStore.updateState({ unapprovedTxs, selectedAddressTxList })
   }
 
   async transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {

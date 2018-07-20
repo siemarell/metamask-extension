@@ -48,6 +48,7 @@ const seedPhraseVerifier = require('./lib/seed-phrase-verifier')
 const cleanErrorStack = require('./lib/cleanErrorStack')
 const {cbToPromise, transformMethods} = require('./waves/util')
 const {WavesTxController, WavesNetworkController} = require('./waves/index')
+const MergedObservableStore = require('./waves/mergedObsStore')
 const log = require('loglevel')
 
 module.exports = class MetamaskController extends EventEmitter {
@@ -245,7 +246,7 @@ module.exports = class MetamaskController extends EventEmitter {
     this.memStore = new ComposableObservableStore(null, {
       NetworkController: this.networkController.store,
       AccountTracker: this.accountTracker.store,
-      TxController: this.txController.memStore,
+      TxControllers: new MergedObservableStore(this.txController.memStore, this.wavesTxController.memStore),
       BalancesController: this.balancesController.store,
       TokenRatesController: this.tokenRatesController.store,
       MessageManager: this.messageManager.memStore,
@@ -259,7 +260,7 @@ module.exports = class MetamaskController extends EventEmitter {
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
-      WavesTxController: this.wavesTxController.memStore,
+      //WavesTxController: this.wavesTxController.memStore,
       WavesNetworkController: this.wavesNetworkController.store
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
