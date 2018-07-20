@@ -203,7 +203,7 @@ function currentTxView (opts) {
   log.info('rendering current tx view')
   const { txData } = opts
   const { txParams, msgParams } = txData
-  debugger
+
   if (txData.metamaskNetworkId === 'WAVES_TESTNET') {
     log.debug('wavesTranser detected, rendering pending-waves tx')
     return h(PendingWavesTx, opts)
