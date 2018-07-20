@@ -1,6 +1,6 @@
 const log = require('loglevel')
 const ObservableStore = require('obs-store')
-//const WavesApi = require('@waves/waves-api')
+const WavesApi = require('@waves/waves-api')
 const SG = require('@waves/waves-signature-generator')
 const EventEmitter = require('events').EventEmitter
 const {Account, hashChain} = require('./util')
@@ -13,7 +13,7 @@ class WavesSimpleKeyring extends EventEmitter {
     // const SEEDS = ['boss machine believe review brass fringe sea palace object same report leopard duty coin orange',
     //   'talk lottery wasp evolve humble staff magnet unlock agent inner frequent assist elevator critic rice']
 
-    //this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
+    this.Waves = WavesApi.create(WavesApi.TESTNET_CONFIG)
 
     this.deserialize(opts)// || SEEDS)
   }
@@ -52,14 +52,8 @@ class WavesSimpleKeyring extends EventEmitter {
   // exportAccount should return a hex-encoded private key:
   exportAccount(pk) {
     const wallet = this._getWalletForAccount(pk)
-    return Promise.resolve(wallet.getPrivateKey().toString('hex'))
+    return Promise.resolve(wallet.phrase)
   }
-
-  publicKeyFromAddress(address) {
-    const entry = Object.entries(this.accounts).find(([key, val]) => val.address === address)
-    return entry && entry[0]
-  }
-
 
   _getWalletForAccount(pk) {
     let wallet = this.accounts[pk]
