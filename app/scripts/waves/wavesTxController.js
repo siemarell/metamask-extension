@@ -1,4 +1,5 @@
 const EventEmitter = require('events')
+const {publicKeyHashFromAddress, publicKeyHashFromPK} =  require('./cryptoUtil')
 const ObservableStore = require('obs-store')
 const log = require('loglevel')
 const TransactionStateManager = require('../controllers/transactions/tx-state-manager')
@@ -140,7 +141,7 @@ module.exports = class WavesTxController extends EventEmitter {
    */
   async signTransaction(txId){
     const txMeta = this.txStateManager.getTx(txId)
-    const signedTxParams = await this.signWavesTx(txMeta.txParams, txMeta.txParams.sender)
+    const signedTxParams = await this.signWavesTx(txMeta.txParams, txMeta.txParams.senderPublicKey)
     const newTxMeta = Object.assign({}, txMeta, {txParams: signedTxParams})
     this.txStateManager.updateTx(newTxMeta, 'transactions#signTransaction')
     this.txStateManager.setTxStatusSigned(txMeta.id)
@@ -244,14 +245,23 @@ module.exports = class WavesTxController extends EventEmitter {
     this.memStore.updateState({ wavesUnapprovedTxs, wavesSelectedAddressTxList })
   }
 
-  transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
-    //const seed = accounts[sender]
-    // const senderPublicKey = this.keyring.publicKeyFromAddress(sender)
-    // if (!senderPublicKey) return Promise.reject(new Error('No account found with this address'))
+  async transfer(sender, recipient, amount, fee = 100000, assetId = 'WAVES') {
+
+    // Map tx address to public key since pk is waves id for account
+    const senderPublicKeyHash = publicKeyHashFromAddress(sender)
+    const availablePublicKeys = Object.entries(this.preferencesStore._getState().identities)
+      .filter(([key, val]) => val.chain === 'WAVES')
+      .map(([key,_])=>key)
+
+    const senderPublicKey = availablePublicKeys
+      .find(pk => publicKeyHashFromPK(pk) === senderPublicKeyHash)
+
+    if (!senderPublicKey) throw new Error(`Failed to get PK for address ${sender}`)
+
     const transferData = {
       //Sender
       sender: sender,
-      // senderPublicKey: senderPublicKey,
+      senderPublicKey: senderPublicKey,
       // An arbitrary address; mine, in this example
       recipient: recipient,
       // ID of a token, or WAVES
@@ -259,7 +269,7 @@ module.exports = class WavesTxController extends EventEmitter {
       // The real amount is the given number divided by 10^(precision of the token)
       amount: amount,
       // The same rules for these two fields
-      feeAssetId: assetId,
+      feeAssetId: 'WAVES',//assetId,
       fee: fee,
       // 140 bytes of data (it's allowed to use Uint8Array here)
       attachment: '',
@@ -267,7 +277,7 @@ module.exports = class WavesTxController extends EventEmitter {
       type: 'transfer'
     }
 
-    return this.newUnapprovedTransaction(transferData)
+    return await this.newUnapprovedTransaction(transferData)
   }
 
   async signText(address, text) {

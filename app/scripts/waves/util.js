@@ -27,7 +27,7 @@ export function cbToPromise(fn, context){
   }
 }
 
-export function Address(addr, chain){
+export function Account(addr, chain){
   let s = new String(addr);
 
   s.chain = chain

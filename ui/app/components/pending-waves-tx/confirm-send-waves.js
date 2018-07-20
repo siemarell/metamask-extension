@@ -140,7 +140,7 @@ confirmSendWaves.prototype.renderHeaderRow = function () {
 
   return (
     h('.page-container__header-row', [
-      !isFullScreen &&  h('.network-display__container', [h('.network-name', 'WAVES TESTNET')
+      !isFullScreen &&  h('.network-display__container', [h('.network-name', this.props.txData.metamaskNetworkId)
       ]),
     ])
   )
