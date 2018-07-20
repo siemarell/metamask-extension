@@ -66,6 +66,7 @@
   "dependencies": {
     "@material-ui/core": "1.0.0",
     "@waves/waves-api": "^1.2.0",
+    "@waves/waves-signature-generator": "^0.13.0",
     "abi-decoder": "^1.0.9",
     "asmcrypto.js": "0.22.0",
     "async": "^2.5.0",
