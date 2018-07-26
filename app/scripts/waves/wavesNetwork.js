@@ -55,6 +55,7 @@ module.exports = class WavesNetworkController extends EventEmitter{
   }
 
   async lookupNetwork () {
+    //ToDo: Find another way
     // Lib has no method to check network id. I ask balances of addresses. One for testnet and one for mainnet
     this.Waves.API.Node.addresses.balance('3MpkdJR4Kf2wS9XGeqANK15tN9YQZib4LaQ')
       .then(() => this.setNetworkState(NETWORK.TESTNET))
